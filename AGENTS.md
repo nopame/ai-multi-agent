@@ -86,7 +86,8 @@ Adapter (ไฟล์กติกาที่แต่ละ CLI อ่าน �
 
 harness = ความสามารถถาวรที่ Claude Code / OpenCode มีให้ในตัว (memory, plugin, session) — ใช้ของเดิม ไม่สร้างชั้นเอง
 
-- Plugins project scope: superpowers (oh-my-openagent ยังไม่รองรับ OpenCode v2 — ใช้ native agents)  
+- Plugins project scope: superpowers เท่านั้น  
+- **oh-my-openagent ห้ามเพิ่มกลับ** (เช็กแล้ว 2026-09-25): ไม่มี release ใดรองรับ OpenCode v2 — stable 4.19.4 และ beta 5.0.0-beta.90 export `{ id, server }` (รูปแบบ V1) แต่ v2.0.16 ต้องการ `{ id, effect | setup }` → โหลดไม่ผ่านเสมอ (`Plugin must export a default definition with an id and an effect or setup function`) · ติดตาม upstream issue `code-yeongyu/oh-my-openagent#7847` — อย่าใส่ใน `opencode.json` ของโปรเจกต์**และ** `~/.config/opencode/opencode.json` (global)  · ใช้ native agents แทน  
 - **Call ข้าม harness ทำได้** — แต่ละตัวยังรันบน harness ตนเอง: ฝั่ง OpenCode เรียก `claude -p` · ฝั่ง Claude เรียก `opencode run` (headless one-shot · ท่อ = ไฟล์ใน `docs/`)  
 - **กติกา call:** ฝั่งที่ถูกเรียกเขียนได้**เฉพาะไฟล์รายงาน**ที่ prompt ระบุ (เช่น `docs/review-*.md`) — ห้ามแตะไฟล์ ownership ของผู้เรียก · อย่าให้สอง harness เขียน working tree พร้อมกัน (commit ก่อน)  
 - ห้ามสร้างระบบส่งข้อความ/สถานะระหว่าง CLI เอง (เช่น ใช้ไฟล์ JSON เป็นท่อส่งงาน) · ห้าม daemon/loop ถาวร  
@@ -100,10 +101,22 @@ npm install
 npm run dev
 npm test
 npm run test:labs
+npm run test:e2e
 npm run build
 npm start
-node scripts/create-course-issues.mjs
+npm run create-issues   # = node scripts/create-course-issues.mjs
 ```
+
+## ความจริงที่ต้องรู้ (verify จาก package.json / configs แล้ว)
+
+- **Node ≥ 22.12** (`engines` ใน package.json) — ต่ำกว่านี้ `npm install` อาจ fail
+- **Test แยก 2 ชุด:** `npm test` = `tests/**/*.test.ts` เท่านั้น (exclude `tests/labs/`) · `npm run test:labs` = `tests/labs/**` เท่านั้น · CI (`.github/workflows/ci.yml`) รันแค่ `npm ci` + `npm test` + `npm run build` — **CI ไม่ run labs tests** ต้อง run เองก่อน PR ฝั่ง BE
+- Run เทสต์เดียว: `npx vitest run <path>` — ไฟล์ใน `tests/labs/` **ต้อง**ใส่ `-c vitest.labs.config.ts` (เช่น `npx vitest run -c vitest.labs.config.ts tests/labs/lab05-api.test.ts`) เพราะ config default exclude `tests/labs/`
+- **E2E ต้องมี dev server ก่อน:** `playwright.config.ts` ไม่มี `webServer` — start `npm run dev` (หรือตั้ง `PLAYWRIGHT_BASE_URL`) แล้วค่อย `npm run test:e2e` (testDir = `./playwright/`, baseURL `http://127.0.0.1:4321`)
+- **SQLite:** `src/lib/db.ts` เขียนที่ `$DATA_DIR/site.sqlite` (default `./data/`) — labs test สร้าง temp `DATA_DIR` เอง ไม่แตะ data จริง
+- `.env`: copy จาก `.env.example` (`STUDENT_SLUG`, `SITE_URL`, `DATA_DIR`, `GITHUB_PERSONAL_ACCESS_TOKEN`) — **ห้าม commit** · `SITE_URL` เป็น `site` ของ `astro.config.mjs` ตอน build
+- **ระวัง:** โปรเจกต์ไม่มี `opencode.json` จริง (มีแต่ `opencode.json.example` = MCP config) — อย่าสมมุติว่ามี project config จน Lab 00 สร้าง
+- `better-sqlite3` เป็น native module — `allowScripts` ใน package.json อนุญาต install scripts ของ `esbuild` + `better-sqlite3@13.0.3` ไว้แล้ว อย่าลบออก
 
 ## ห้าม
 
