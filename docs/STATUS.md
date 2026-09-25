@@ -4,11 +4,11 @@
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
 Last updated: 2026-09-25 +07:00  
-Updated by: OpenCode
+Updated by: Claude
 
 ## Current goal
 
-- Lab 05 backend เสร็จ (test ทั้งสองชุดเขียว + build ผ่าน) → ส่งต่อ Claude review/QA ตาม handoff `docs/handoffs/05-opencode-to-claude.md`
+- Frontend + backend เสร็จ merge เข้า main แล้ว · ตรวจ responsive 320–1920px + e2e ผ่าน · ถัดไป: ship gate (L7 / L8 / L11) → Lab 08
 
 ## Done
 
@@ -19,6 +19,7 @@ Updated by: OpenCode
 - Lab 04 UI: Home / About / Interests / Contact / Guestbook ตาม D1–D17 · ธีมสว่าง · Contact สลับเป็นสถานะ A เมื่อได้ 501 · parser อ่าน Tagline / Contact · PROFILE Bio + Interests ใหม่ (ปิด L6)
 - `DECISIONS.md` D14–D17 + API contract
 - Debate agents ถาวร `.claude/agents/{brand-strategist,ux-critic,devils-advocate}.md` (`memory: project`) + `.claude/agent-memory/<name>/MEMORY.md`
+- Responsive + e2e: `docs/QA.md` · `playwright/{responsive,forms}.spec.ts` · แก้ CTA บนจอ 320px, nav มือถือ และ Interests 2×2
 
 ## In progress
 
@@ -30,12 +31,13 @@ Updated by: OpenCode
 
 ## Next actions
 
-1. Claude: review contract เทียบ UI + commit รวม (backend ไม่ commit) · Lab 06 Playwright flow ฟอร์มจริง · Lab 03 issues เมื่อ MCP ใช้ได้ · Lab 08 ship gate
-2. —
+1. human: audit repo + GitHub (L7) · อีเมลตอบกลับจริง (L8)
+2. OpenCode: rate limit หลัง proxy (L11)
+3. Lab 03 issues เมื่อ GitHub MCP ใช้ได้ (L9) · Lab 07 review · Lab 08 ship
 
 ## Files changed in latest session
 
-- `src/lib/db.ts` · `src/lib/rate-limit.ts` (ใหม่) · `src/pages/api/{contact,guestbook}.ts` · `tests/api.test.ts` (ใหม่) · handoff 05 · STATUS/OPEN_LOOPS
+- `src/layouts/BaseLayout.astro` · `src/pages/{index,interests}.astro` · `playwright/*.spec.ts` · `docs/QA.md`
 
 ## Notes
 

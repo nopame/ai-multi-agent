@@ -38,6 +38,12 @@ const github = githubProfileUrl(profile);
   .tagline { color: var(--text); font-size: 1.05rem; margin: 0 0 0.75rem; }
   .lead { margin: 0 0 1.25rem; }
   .actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; margin: 0; }
+  /* จอเตี้ย/แคบ: ยกปุ่มติดต่อขึ้นก่อนย่อหน้าแนะนำ ให้เห็นโดยไม่ต้องเลื่อน (D4) */
+  @media (max-width: 480px) {
+    .hero { display: flex; flex-direction: column; padding: 1.25rem 1.1rem; }
+    .hero .actions { order: 1; margin-bottom: 1rem; }
+    .hero .lead { order: 2; margin-bottom: 0; }
+  }
   .tile { text-decoration: none; margin: 0; }
   .tile:hover { border-color: var(--accent); }
   .tile h2 { margin: 0 0 0.25rem; font-size: 1.15rem; color: var(--accent); }

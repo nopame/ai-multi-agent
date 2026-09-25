@@ -11,5 +11,5 @@ test('contact page has form fields', async ({ page }) => {
   await page.goto('/contact');
   await expect(page.getByLabel('ชื่อ', { exact: true })).toBeVisible();
   await expect(page.getByLabel('อีเมล')).toBeVisible();
-  await expect(page.getByLabel('ข้อความ')).toBeVisible();
+  await expect(page.getByLabel('ข้อความ', { exact: true })).toBeVisible();
 });
