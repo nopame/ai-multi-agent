@@ -3,19 +3,19 @@
 > คัดลอกเป็น `docs/STATUS.md` ใน Lab 00 · อ่านทุก session · **สั้น** · single-writer ต่อรอบ  
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
-Last updated: 2026-09-25 10:30 +07:00  
+Last updated: 2026-09-25 +07:00  
 Updated by: Claude
 
 ## Current goal
 
-- Lab 01 ปิดงาน PROFILE — เนื้อหาจริงแสดงบนเว็บครบทุกหัวข้อ
+- Lab 02 ปิดแล้ว (Agent Teams 3 บทบาท · 5 รอบ) → `DECISIONS.md` D1–D13 · ถัดไป Lab 03 issues จาก Must (D12)
 
 ## Done
 
-- `docs/PROFILE.md` เนื้อหาจริง (nopame) ครบ Name / Headline / Bio / Audience / Interests / Contact / Tone / Privacy
-- Parser `src/lib/profile.ts` อ่านหัวข้อหลายบรรทัดได้ + helper `paragraphs` / `listItems` (ตัด bullet และ `**bold**`)
-- หน้าแรกแสดง Bio ย่อหน้าแรก + Audience เป็นรายการ · About แสดง Bio ทุกย่อหน้า
-- Brainstorm ปรับแล้ว (Must 4 / Nice 7 / Later 3 · About ใช้มุม "ส่งงานได้ครบทุกชั้น") อยู่ท้าย `docs/PROFILE.md` — ยังเป็น Proposed
+- `docs/PROFILE.md` เนื้อหาจริง (nopame) · parser `src/lib/profile.ts` อ่านหัวข้อหลายบรรทัด · Home/About แสดง Bio + Audience
+- `docs/DEBATE.md` ครบ Brand / UX / Devil (5 รอบ) + ตารางความขัดแย้ง
+- `docs/DECISIONS.md` D1–D13 (ฉบับใหม่ — ไฟล์ D1–D9 เดิมหาไม่พบ) · PROFILE: Headline + Tagline ตาม D1/D2
+- Debate agents ถาวร `.claude/agents/{brand-strategist,ux-critic,devils-advocate}.md` (`memory: project`) + `.claude/agent-memory/<name>/MEMORY.md`
 
 ## In progress
 
@@ -23,18 +23,18 @@ Updated by: Claude
 
 ## Blocked
 
-- —
+- ก่อน ship: audit repo/GitHub (D8) · ฟอร์ม Contact สถานะ B ต้องมีอีเมลตอบกลับจริง + retention (D7) · ต้องมีช่องติดต่อใช้ได้ ≥ 1 (D9)
 
 ## Next actions
 
-1. Lab 02 Debate — นำ Brainstorm ใน PROFILE ไปถกใน `DEBATE.md` แล้วปิดใน `DECISIONS.md`
-2. Lab 03 สร้าง issues จาก Must
+1. Lab 03 สร้าง issues จาก Must (D12)
+2. ก่อน Lab 04: Bio ใหม่ (D3) + Interests "หัวข้อ — ประโยคเดียว" (D5) + parser อ่าน Tagline
 
 ## Files changed in latest session
 
-- `src/lib/profile.ts` · `src/pages/index.astro` · `src/pages/about.astro` · `tests/profile.test.ts`
+- `docs/DEBATE.md` · `docs/DECISIONS.md` (ใหม่) · `docs/PROFILE.md` · `.claude/agents/*` (3 ใหม่) · `.claude/agent-memory/*`
 
 ## Notes
 
-- Proposed vs Approved: brainstorm อยู่ใน `DEBATE.md` — สิ่งที่ปิดแล้วอยู่ใน `DECISIONS.md`
+- Proposed vs Approved: ความเห็นใน `DEBATE.md` — คำตัดสินใน `DECISIONS.md` · memory ของ debate agent ขัดกับ DECISIONS → ยึด DECISIONS
 - Contact / Tone / Privacy ใน PROFILE ยังไม่ถูก parser อ่าน — ใช้ตอนทำ UI (Lab 04)
