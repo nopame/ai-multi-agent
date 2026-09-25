@@ -2,11 +2,12 @@
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="ติดต่อ">
+<BaseLayout title="ติดต่อ · nopame">
   <section class="card">
     <h1>ติดต่อ</h1>
     <p>ฝากข้อความถึงผมได้ที่นี่ครับ</p>
-    <form id="contact-form">
+    <p id="form-hint">กรอกให้ครบทุกช่องนะครับ</p>
+    <form id="contact-form" aria-describedby="form-hint retention-note">
       <label for="name">ชื่อ</label>
       <input id="name" name="name" required maxlength="80" autocomplete="name" />
       <label for="email">อีเมล</label>
@@ -20,7 +21,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
       <p style="margin-top:1rem"><button type="submit" id="contact-submit">ส่งข้อความ</button></p>
       <p id="status" role="status" aria-live="polite"></p>
-      <p class="note">ข้อความจะถูกลบภายใน 90 วัน</p>
+      <p class="note" id="retention-note">ข้อความจะถูกลบภายใน 90 วัน</p>
     </form>
     <!-- shown only when backend returns 501 (stub era) -->
     <div id="contact-fallback" hidden>
@@ -86,11 +87,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         data && typeof data === 'object' && typeof (data as { error?: unknown }).error === 'string'
           ? (data as { error: string }).error.trim()
           : '';
-      setStatus(err ? `${err} — ลองใหม่อีกครั้งนะครับ` : GENERIC);
+      setStatus(err || GENERIC);
     } catch {
       setStatus('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่อีกครั้งนะครับ');
     } finally {
-      if (submit) submit.disabled = false;
+      if (submit) {
+        submit.disabled = false;
+        submit.focus();
+      }
     }
   });
 </script>

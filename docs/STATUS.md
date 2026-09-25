@@ -3,7 +3,7 @@
 > คัดลอกเป็น `docs/STATUS.md` ใน Lab 00 · อ่านทุก session · **สั้น** · single-writer ต่อรอบ  
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
-Last updated: 2026-09-25 15:27 +07:00  
+Last updated: 2026-09-25 16:06 +07:00  
 Updated by: Claude
 
 ## Current goal
@@ -12,6 +12,9 @@ Updated by: Claude
 
 ## Done
 
+- Lab 06 E2E (Playwright MCP): 10/10 step ผ่าน — Home/About/Interests/Contact/Guestbook 200 · contact + guestbook POST 201 · invalid → 400 · ผล + screenshots ใน `docs/QA.md` / `docs/screenshots/` · ถัดไป = a11y
+- Lab 06 a11y: axe 0 violation ทุกหน้า · แก้ meta description หลุดคำคอร์ส (+ guard test ใหม่) · skip link · title · guestbook `<time>` · ถอด Guestbook จาก nav/การ์ด (L11) · error ซ้ำ (L13) · npm test 15/15 · test:labs 2/2 · build OK
+- Lab 06 a11y debate (Advocate/Pragmatist) → action items A1–A4 (P0/P1) แก้ครบ + verify แล้ว · A5–A7 = P2 หลัง ship
 - Lab 05b: `contact.astro` + `guestbook.astro` — microcopy ไทย · honeypot `website` · ถอด API path · รับมือ 400/429/500/501 · แก้ stored XSS ใน guestbook · ตรวจผ่านเบราว์เซอร์ + curl · npm test 14/14 · test:labs 2/2 · build OK
 - Lab 05 ปิดสมบูรณ์: PR #15 merged → main · issue #10 ปิดอัตโนมัติ · branch `lab-05-backend` ลบแล้ว · ตรวจซ้ำบน main แล้ว (npm test 14/14 · test:labs 2/2 · build OK)
 
@@ -23,7 +26,7 @@ Updated by: Claude
 
 ## In progress
 
-- —
+- — (Lab 06 E2E + a11y เสร็จ · ยังไม่ commit)
 
 ## Blocked
 
