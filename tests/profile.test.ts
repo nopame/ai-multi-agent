@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { parseProfile, paragraphs, listItems } from '../src/lib/profile';
+import {
+  parseProfile,
+  paragraphs,
+  listItems,
+  keyValues,
+  splitHeadline,
+  splitInterest,
+} from '../src/lib/profile';
 
 const raw = [
   '# PROFILE',
@@ -23,6 +30,10 @@ const raw = [
   '',
   '## Contact',
   '- email: demo@example.com',
+  '- linkedin: —',
+  '',
+  '## Tagline',
+  'Short proof line',
   '',
 ].join('\r\n');
 
@@ -62,5 +73,42 @@ describe('listItems', () => {
       'peers',
       'plain line',
     ]);
+  });
+});
+
+describe('tagline and contact', () => {
+  it('reads Tagline and Contact sections', () => {
+    const p = parseProfile(raw);
+    expect(p.tagline).toBe('Short proof line');
+    expect(p.contact).toEqual({ email: 'demo@example.com' });
+  });
+
+  it('keyValues drops empty and dash-only values', () => {
+    expect(keyValues('- github: https://x.test\n- linkedin: —\n- phone:\n- note')).toEqual({
+      github: 'https://x.test',
+    });
+  });
+});
+
+describe('splitHeadline', () => {
+  it('splits role from qualifier at " ที่"', () => {
+    expect(splitHeadline('Full-stack developer ที่วางระบบให้ทีม')).toEqual({
+      main: 'Full-stack developer',
+      sub: 'ที่วางระบบให้ทีม',
+    });
+  });
+
+  it('keeps a headline without qualifier whole', () => {
+    expect(splitHeadline('Personal branding site')).toEqual({ main: 'Personal branding site', sub: '' });
+  });
+});
+
+describe('splitInterest', () => {
+  it('splits "title — detail"', () => {
+    expect(splitInterest('DevOps — ship with Docker')).toEqual({ title: 'DevOps', detail: 'ship with Docker' });
+  });
+
+  it('returns title only without a dash', () => {
+    expect(splitInterest('Full-stack')).toEqual({ title: 'Full-stack', detail: '' });
   });
 });

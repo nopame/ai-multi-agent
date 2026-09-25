@@ -21,6 +21,7 @@ Thumbs.db
 # test artifacts
 test-results/
 playwright-report/
+.playwright-mcp/
 coverage/
 
 # ephemeral harness / CLI dry-run logs (ไม่ใช่ deliverable ของผู้เรียน)

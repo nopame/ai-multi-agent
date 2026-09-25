@@ -1,16 +1,27 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadProfile } from '../lib/profile';
+import { loadProfile, splitInterest } from '../lib/profile';
 const profile = loadProfile();
+const items = profile.interests.map(splitInterest);
 ---
-<BaseLayout title={`Interests · ${profile.name}`}>
+<BaseLayout title={`ความสนใจ · ${profile.name}`}>
   <section class="card">
-    <h1>Interests</h1>
-    <ul>
-      {profile.interests.map((item) => <li>{item}</li>)}
-    </ul>
-    <p>อัปเดตรายการสิ่งที่สนใจเร็ว ๆ นี้</p>
+    <h1>ความสนใจ</h1>
+    <p>หัวข้อที่ผมลงมือทำจริง พร้อมสิ่งที่ทำในแต่ละเรื่อง</p>
+  </section>
+  <section class="grid">
+    {items.map((i) => (
+      <article class="card item">
+        <h2>{i.title}</h2>
+        {i.detail && <p>{i.detail}</p>}
+      </article>
+    ))}
   </section>
 </BaseLayout>
 
+<style>
+  .item { margin: 0; border-top: 4px solid var(--mint); }
+  .item h2 { font-size: 1.1rem; margin: 0 0 0.4rem; }
+  .item p { margin: 0; }
+</style>

@@ -25,9 +25,33 @@
 | D12 | Must v1 (แทน Must ใน Brainstorm) | (1) Home ตาม D1 / D2 / D4 อ่านง่ายบนมือถือและ contrast ผ่าน (2) About ตาม D3 (3) หน้า Contact ตาม D6 / D7 + ผ่าน D9 (4) Deploy ที่ public URL ตอบ HTTP 200 จริง · **Guestbook ย้ายไป Later** · Nice ห้ามเริ่มก่อน Must ครบ | ลด scope creep (R7) และความเสี่ยง R6 | ทั้ง 3 บทบาท |
 | D13 | คำหลักใน Tone | "ครบทุกชั้น · ตรวจสอบได้ · มีระบบ" ใช้ได้เฉพาะเมื่อมีหลักฐานหรือคำขยายวางอยู่ใกล้ ๆ · "ตรวจสอบได้" รอผ่าน D8 | ไม่ให้คำหลักกลายเป็น buzzword (B2) | Brand + Devil |
 
+## การตัดสินใจเพิ่มระหว่าง implement (2026-09-25 · facilitator/frontend)
+
+> เปิด D-id ใหม่แทนการแก้ D1–D13 เงียบ ๆ · D14 **แทนที่** ส่วน "Guestbook → Later" ใน D12
+
+| ID | หัวข้อ | ตัดสินใจ | เหตุผลสั้น | ใครเสนอ |
+|----|--------|----------|------------|---------|
+| D14 | Guestbook v1 (แทนที่ D12 บางส่วน) | **คงหน้า Guestbook ใน v1** ในรูปแบบปลอดภัย: render ด้วย `textContent` เท่านั้น (ห้าม `innerHTML`) · ชื่อ ≤ 80 · ข้อความ ≤ 500 · มี honeypot + rate limit ฝั่ง server · ไม่เก็บอีเมล · แสดงล่าสุด 50 รายการ | nav, API contract และ `test:labs` ต้องมี guestbook · มาตรการของ Devil (R6) ครอบความเสี่ยง XSS / spam | facilitator (อิง R6) |
+| D15 | สถานะเริ่มต้นของฟอร์ม Contact | ฟอร์มแสดงเป็นค่าเริ่มต้น · ถ้า API ตอบ 501 หรือเชื่อมต่อไม่ได้ ให้สลับเป็นสถานะ A (D7) ทันทีตอนกดส่ง · retention 90 วันต้องบังคับในโค้ด backend · เงื่อนไขฝั่งคน (มีคนอ่านทุกสัปดาห์ / มีอีเมลตอบกลับจริง) ย้ายไปเป็น ship gate (L8) | ให้ทดสอบฟอร์มได้จริงหลัง backend เสร็จ โดยไม่แสดงข้อความหลอกผู้ใช้ | facilitator (อิง D7) |
+| D16 | CTA ใน Bio | ใช้ "ทักมาทางหน้าติดต่อได้เลยครับ" แทน "ดูโค้ดเว็บนี้…" จนกว่าจะผ่าน D8 | ลิงก์ repo ยังซ่อนอยู่ตาม D8 | facilitator (อิง D3 + D8) |
+| D17 | สวิตช์ลิงก์ GitHub | ตั้ง env `SHOW_GITHUB_LINK=true` ตอน runtime → แสดงลิงก์โปรไฟล์ GitHub จาก `## Contact` (ต้องเป็น `https://github.com/<user>` เท่านั้น) · ค่าเริ่มต้นคือซ่อน | ช่องเปิดปิดตาม D8 ไม่ได้ฝัง URL ลงในโค้ด | frontend |
+
+## API contract (UI ↔ backend · สำหรับ Lab 05)
+
+| Endpoint | Request (JSON) | สำเร็จ | Error |
+|---|---|---|---|
+| `POST /api/contact` | `{ name ≤80, email ≤120 (รูปแบบอีเมล), message ≤1000, website? }` | `201 { ok: true }` | `400 { error }` validation · `429 { error }` rate limit · `501` ยังไม่ implement · `500 { error }` ข้อความกลาง |
+| `GET /api/guestbook` | — | `200 { entries: [{ id, name, message, created_at }] }` ใหม่สุดก่อน ≤ 50 รายการ | `501` · `500 { error }` ข้อความกลาง |
+| `POST /api/guestbook` | `{ name ≤80, message ≤500, website? }` | `201 { entry }` | `400` / `429` / `501` / `500` ตามแบบด้านบน |
+
+- `error` เป็นข้อความภาษาไทยสั้น ๆ ที่ปลอดภัยต่อผู้ใช้ **ห้าม**มี stack trace, SQL หรือ `err.message` ดิบ (UI แสดง `error` เฉพาะกรณี 400/429)
+- `website` คือ honeypot: ถ้ามีค่า ให้ตอบเหมือนสำเร็จ (`201`) แต่ไม่บันทึก
+- ตัดช่องว่างหัวท้าย (trim) ก่อน validate · ห้ามเป็นค่าว่าง
+- Rate limit ต่อ IP (เช่น 5 ครั้งต่อ 10 นาทีต่อ endpoint) ต้องมี test (D6)
+
 ## สิ่งที่เลื่อนออก (Out of scope v1)
 
-- Guestbook (ย้ายจาก Nice ไป Later เพราะเสี่ยง XSS / spam และไม่ช่วย recruiter)
+- ~~Guestbook~~ → กลับมาอยู่ใน v1 ตาม D14 (มีมาตรการป้องกันครบ)
 - dropdown "เรื่องที่ติดต่อ" ในฟอร์ม
 - ตัวเลข "5 ปี" และตัวเลขใดก็ตามที่ตรวจสอบไม่ได้
 - ลิงก์ LinkedIn และช่องทางที่ยังไม่มีค่า

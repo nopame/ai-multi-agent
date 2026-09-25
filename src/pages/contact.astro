@@ -1,43 +1,115 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { loadProfile } from '../lib/profile';
+import { githubProfileUrl } from '../lib/site';
+const profile = loadProfile();
+const github = githubProfileUrl(profile);
+// D6: 3 fields · no topic dropdown · 0/1000 counter · honeypot "website" · no CAPTCHA
+// D7: state B = form (default) · state A = form hidden + fallback, when the API answers 501 / is unreachable
+const MAX_MESSAGE = 1000;
 ---
-<BaseLayout title="Contact">
+<BaseLayout title={`ติดต่อ · ${profile.name}`}>
   <section class="card">
-    <h1>Contact</h1>
-    <p>ฟอร์มนี้โพสต์ไปที่ <code>POST /api/contact</code></p>
-    <form id="contact-form">
-      <label for="name">Name</label>
-      <input id="name" name="name" required maxlength="80" />
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" required maxlength="120" />
-      <label for="message">Message</label>
-      <textarea id="message" name="message" rows="5" required maxlength="2000"></textarea>
-      <p style="margin-top:1rem"><button type="submit">Send</button></p>
-      <p id="status" role="status" aria-live="polite"></p>
+    <h1>ติดต่อผม</h1>
+    <p>เรื่องงานประจำ งาน freelance หรืออยากคุยเรื่อง AI agent ส่งข้อความมาได้เลยครับ</p>
+
+    <form id="contact-form" novalidate data-max={MAX_MESSAGE}>
+      <label for="name">ชื่อ</label>
+      <input id="name" name="name" autocomplete="name" required maxlength="80" />
+
+      <label for="email">อีเมล</label>
+      <input id="email" name="email" type="email" autocomplete="email" required maxlength="120" />
+
+      <label for="message">ข้อความ</label>
+      <textarea
+        id="message"
+        name="message"
+        rows="6"
+        required
+        maxlength={MAX_MESSAGE}
+        placeholder="เล่าสั้น ๆ ว่าอยากคุยเรื่องอะไรครับ"
+        aria-describedby="message-count"></textarea>
+      <p id="message-count" class="hint" aria-live="polite">0/{MAX_MESSAGE}</p>
+
+      <div class="hp" aria-hidden="true">
+        <label for="website">เว็บไซต์</label>
+        <input id="website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <p class="submit"><button class="btn btn-cta" type="submit">ส่งข้อความ</button></p>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <p class="hint">ข้อความจะเก็บไว้เพื่อติดต่อกลับเท่านั้น และลบภายใน 90 วัน</p>
     </form>
+
+    <div id="fallback" hidden>
+      <p class="status">ช่องทางนี้กำลังเตรียมพร้อมครับ</p>
+      {github
+        ? <p>ระหว่างนี้ติดต่อผมผ่าน <a href={github} rel="me noopener">GitHub</a> ได้ครับ</p>
+        : <p>ลองกลับมาใหม่อีกครั้งภายหลังนะครับ</p>}
+    </div>
   </section>
 </BaseLayout>
+
 <script>
-  const form = document.getElementById('contact-form');
-  const status = document.getElementById('status');
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const statusEl = document.getElementById('status');
+  const fallback = document.getElementById('fallback');
+  const message = document.getElementById('message') as HTMLTextAreaElement | null;
+  const counter = document.getElementById('message-count');
+  const max = Number(form?.dataset.max || 1000);
+  const NEXT_STEP = 'ลองใหม่อีกครั้งภายหลังนะครับ';
+
+  function setStatus(text: string, kind: 'ok' | 'err' | '' = '') {
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.className = `status ${kind}`.trim();
+  }
+
+  function showFallback() {
+    if (form) form.hidden = true;
+    if (fallback) fallback.hidden = false;
+  }
+
+  message?.addEventListener('input', () => {
+    if (counter) counter.textContent = `${message.value.length}/${max}`;
+  });
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const fd = new FormData(form);
-    const payload = Object.fromEntries(fd.entries());
-    status.textContent = 'Sending…';
+    if (!form.checkValidity()) {
+      setStatus('กรุณากรอกชื่อ อีเมลที่ถูกต้อง และข้อความก่อนส่งครับ', 'err');
+      form.reportValidity();
+      return;
+    }
+    const button = form.querySelector('button');
+    button?.setAttribute('disabled', '');
+    setStatus('กำลังส่ง…');
     try {
+      const payload = Object.fromEntries(new FormData(form).entries());
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      status.textContent = res.ok ? 'Sent. Thank you!' : `Error: ${data.error || res.status}`;
-      if (res.ok) form.reset();
-    } catch (err) {
-      status.textContent = 'Network error';
+      if (res.status === 501) return showFallback();
+      if (res.ok) {
+        form.reset();
+        if (counter) counter.textContent = `0/${max}`;
+        return setStatus('ได้รับข้อความแล้วครับ', 'ok');
+      }
+      // 400 / 429 carry a short, user-safe Thai message from the API; anything else stays generic (D6 / U9)
+      const data = await res.json().catch(() => ({}));
+      const safe = (res.status === 400 || res.status === 429) && typeof data.error === 'string' ? data.error : '';
+      setStatus(safe ? `${safe} · ${NEXT_STEP}` : `ส่งข้อความไม่สำเร็จ · ${NEXT_STEP}`, 'err');
+    } catch {
+      showFallback();
+    } finally {
+      button?.removeAttribute('disabled');
     }
   });
 </script>
 
+<style>
+  .submit { margin: 1rem 0 0; }
+</style>
