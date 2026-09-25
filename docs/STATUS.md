@@ -8,18 +8,14 @@ Updated by: Claude
 
 ## Current goal
 
-- Frontend + backend เสร็จ merge เข้า main แล้ว · ตรวจ responsive 320–1920px + e2e ผ่าน · ถัดไป: ship gate (L7 / L8 / L11) → Lab 08
+- Lab 02 ปิดแล้ว (Agent Teams 3 บทบาท · 5 รอบ) → `DECISIONS.md` D1–D13 · ถัดไป Lab 03 issues จาก Must (D12)
 
 ## Done
 
-- Lab 05 backend: `db.ts` (validate/trim/retention 90 วัน) + `rate-limit.ts` (5 ครั้ง/10 นาที/IP) + routes ตาม API contract (201/400/429/500/501 + honeypot) + `tests/api.test.ts` 27 tests · `npm test` 45/45 · `npm run test:labs` 2/2 · `npm run build` ผ่าน · smoke ผ่าน curl จริง
 - `docs/PROFILE.md` เนื้อหาจริง (nopame) · parser `src/lib/profile.ts` อ่านหัวข้อหลายบรรทัด · Home/About แสดง Bio + Audience
 - `docs/DEBATE.md` ครบ Brand / UX / Devil (5 รอบ) + ตารางความขัดแย้ง
 - `docs/DECISIONS.md` D1–D13 (ฉบับใหม่ — ไฟล์ D1–D9 เดิมหาไม่พบ) · PROFILE: Headline + Tagline ตาม D1/D2
-- Lab 04 UI: Home / About / Interests / Contact / Guestbook ตาม D1–D17 · ธีมสว่าง · Contact สลับเป็นสถานะ A เมื่อได้ 501 · parser อ่าน Tagline / Contact · PROFILE Bio + Interests ใหม่ (ปิด L6)
-- `DECISIONS.md` D14–D17 + API contract
 - Debate agents ถาวร `.claude/agents/{brand-strategist,ux-critic,devils-advocate}.md` (`memory: project`) + `.claude/agent-memory/<name>/MEMORY.md`
-- Responsive + e2e: `docs/QA.md` · `playwright/{responsive,forms}.spec.ts` · แก้ CTA บนจอ 320px, nav มือถือ และ Interests 2×2
 
 ## In progress
 
@@ -27,17 +23,16 @@ Updated by: Claude
 
 ## Blocked
 
-- ก่อน ship: audit repo/GitHub (D8) · ฟอร์ม Contact สถานะ B ขาดเฉพาะส่วนคน — อีเมลตอบกลับจริง + อ่าน ≥ สัปดาห์ละครั้ง (D7) · ต้องมีช่องติดต่อใช้ได้ ≥ 1 (D9)
+- ก่อน ship: audit repo/GitHub (D8) · ฟอร์ม Contact สถานะ B ต้องมีอีเมลตอบกลับจริง + retention (D7) · ต้องมีช่องติดต่อใช้ได้ ≥ 1 (D9)
 
 ## Next actions
 
-1. human: audit repo + GitHub (L7) · อีเมลตอบกลับจริง (L8)
-2. OpenCode: rate limit หลัง proxy (L11)
-3. Lab 03 issues เมื่อ GitHub MCP ใช้ได้ (L9) · Lab 07 review · Lab 08 ship
+1. Lab 03 สร้าง issues จาก Must (D12)
+2. ก่อน Lab 04: Bio ใหม่ (D3) + Interests "หัวข้อ — ประโยคเดียว" (D5) + parser อ่าน Tagline
 
 ## Files changed in latest session
 
-- `src/layouts/BaseLayout.astro` · `src/pages/{index,interests}.astro` · `playwright/*.spec.ts` · `docs/QA.md`
+- `docs/DEBATE.md` · `docs/DECISIONS.md` (ใหม่) · `docs/PROFILE.md` · `.claude/agents/*` (3 ใหม่) · `.claude/agent-memory/*`
 
 ## Notes
 
