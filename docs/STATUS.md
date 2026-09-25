@@ -3,15 +3,16 @@
 > คัดลอกเป็น `docs/STATUS.md` ใน Lab 00 · อ่านทุก session · **สั้น** · single-writer ต่อรอบ  
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
-Last updated: 2026-09-25 15:10 +07:00  
-Updated by: OpenCode
+Last updated: 2026-09-25 15:27 +07:00  
+Updated by: Claude
 
 ## Current goal
 
-- Lab 05 **merged** เข้า main (PR #15 · `791df8e`) · main เขียว: `npm test` 14/14 · `test:labs` 2/2 · build OK · **หยุดรอที่ Lab 06 (Playwright QA) ตามคำสั่งผู้เรียน** · Lab 05b swarm ไม่จำเป็น (test เขียวหมดแล้ว)
+- Lab 05b swarm เสร็จบน branch `lab-05b-swarm` (20/20 turns · ดู `docs/SWARM.md` · OpenCode ตรวจสัญญา FE↔BE ผ่าน → `docs/fe-be-contract-check.md`) · ฟอร์ม contact/guestbook ส่งได้บน localhost · ยังไม่ commit/PR · ถัดไป = Lab 06 QA
 
 ## Done
 
+- Lab 05b: `contact.astro` + `guestbook.astro` — microcopy ไทย · honeypot `website` · ถอด API path · รับมือ 400/429/500/501 · แก้ stored XSS ใน guestbook · ตรวจผ่านเบราว์เซอร์ + curl · npm test 14/14 · test:labs 2/2 · build OK
 - Lab 05 ปิดสมบูรณ์: PR #15 merged → main · issue #10 ปิดอัตโนมัติ · branch `lab-05-backend` ลบแล้ว · ตรวจซ้ำบน main แล้ว (npm test 14/14 · test:labs 2/2 · build OK)
 
 - Lab 05: `src/lib/db.ts` (validate + insert + retention 90 วัน + cap 50) · `src/lib/rate-limit.ts` · `src/pages/api/{contact,guestbook}.ts` (honeypot `website` · 429 · error ปลอดภัย D9) · `tests/contact-api.test.ts` 5 test (D6: rate limit มี test) · `opencode.json` (GitHub MCP ผ่าน `{env:GITHUB_PAT}` จาก `.env`)
@@ -36,7 +37,7 @@ Updated by: OpenCode
 
 ## Files changed in latest session
 
-- `src/lib/db.ts` · `src/lib/rate-limit.ts` (ใหม่) · `src/pages/api/contact.ts` · `src/pages/api/guestbook.ts` · `tests/contact-api.test.ts` (ใหม่) · `opencode.json` (ใหม่) · `docs/STATUS.md` · `docs/OPEN_LOOPS.md` — ทั้งหมดผ่าน PR #15 เข้า main แล้ว
+- `src/pages/contact.astro` · `src/pages/guestbook.astro` · `docs/SWARM.md` (ใหม่) · `docs/STATUS.md` · `docs/OPEN_LOOPS.md` (branch `lab-05b-swarm`)
 
 ## Notes
 

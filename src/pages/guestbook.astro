@@ -5,42 +5,153 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="Guestbook">
   <section class="card">
     <h1>Guestbook</h1>
-    <p>ฝากข้อความไว้ได้ทางฟอร์มนี้ — อ่าน/เขียนผ่าน <code>/api/guestbook</code></p>
-    <form id="gb-form">
-      <label for="name">Name</label>
-      <input id="name" name="name" required maxlength="80" />
-      <label for="message">Message</label>
+    <p>ฝากข้อความทักทายผมไว้ได้ครับ</p>
+    <form id="gb-form" novalidate>
+      <label for="name">ชื่อ</label>
+      <input id="name" name="name" required maxlength="80" autocomplete="name" />
+      <label for="message">ข้อความ</label>
       <textarea id="message" name="message" rows="3" required maxlength="500"></textarea>
-      <p style="margin-top:1rem"><button type="submit">Sign</button></p>
+      <div class="hp-field" aria-hidden="true">
+        <label for="website">Website</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <p style="margin-top:1rem"><button type="submit" id="gb-submit">ลงชื่อ</button></p>
+      <p id="gb-status" role="status" aria-live="polite"></p>
     </form>
-    <div id="entries" class="card" style="margin-top:1.25rem" aria-live="polite">Loading…</div>
+    <div id="entries" class="card" style="margin-top:1.25rem" aria-live="polite">กำลังโหลด…</div>
   </section>
 </BaseLayout>
+<style>
+  .hp-field {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>
 <script>
-  const entries = document.getElementById('entries');
-  const form = document.getElementById('gb-form');
-  async function load() {
-    const res = await fetch('/api/guestbook');
-    const data = await res.json();
-    if (!res.ok) {
-      entries.textContent = data.error || `HTTP ${res.status}`;
+  const entries = document.getElementById('entries') as HTMLDivElement | null;
+  const form = document.getElementById('gb-form') as HTMLFormElement | null;
+  const submitBtn = document.getElementById('gb-submit') as HTMLButtonElement | null;
+  const status = document.getElementById('gb-status') as HTMLParagraphElement | null;
+
+  const MSG_LOAD_ERROR = 'ยังโหลดข้อความไม่ได้ ลองใหม่ภายหลังครับ';
+  const MSG_SEND_ERROR = 'ส่งข้อความไม่สำเร็จ ลองใหม่อีกครั้งครับ';
+  const MSG_NOT_OPEN = 'ยังไม่เปิดรับข้อความ ลองใหม่ภายหลัง';
+  const MSG_NETWORK = 'เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่ครับ';
+  const MSG_THANKS = 'ขอบคุณที่ฝากข้อความครับ';
+
+  type Entry = { id?: unknown; name?: unknown; message?: unknown; created_at?: unknown };
+
+  async function readJson(res: Response): Promise<any> {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
+
+  function formatDate(value: unknown): string {
+    if (typeof value !== 'string' && typeof value !== 'number') return '';
+    // SQLite datetime('now') is UTC without zone marker; treat as UTC.
+    const raw = typeof value === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)
+      ? value.replace(' ', 'T') + 'Z'
+      : value;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  function showText(text: string) {
+    if (!entries) return;
+    entries.replaceChildren();
+    const p = document.createElement('p');
+    p.textContent = text;
+    entries.appendChild(p);
+  }
+
+  function renderEntries(list: Entry[]) {
+    if (!entries) return;
+    if (list.length === 0) {
+      showText('ยังไม่มีข้อความ');
       return;
     }
-    entries.innerHTML = (data.entries || [])
-      .map((e) => `<p><strong>${e.name}</strong>: ${e.message}<br/><small>${e.created_at}</small></p>`)
-      .join('') || '<p>No entries yet.</p>';
+    const frag = document.createDocumentFragment();
+    for (const e of list) {
+      const p = document.createElement('p');
+      const strong = document.createElement('strong');
+      strong.textContent = String(e.name ?? '');
+      p.appendChild(strong);
+      p.appendChild(document.createTextNode(': ' + String(e.message ?? '')));
+      const when = formatDate(e.created_at);
+      if (when) {
+        p.appendChild(document.createElement('br'));
+        const small = document.createElement('small');
+        small.textContent = when;
+        p.appendChild(small);
+      }
+      frag.appendChild(p);
+    }
+    entries.replaceChildren(frag);
   }
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const payload = Object.fromEntries(new FormData(form).entries());
-    await fetch('/api/guestbook', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    form.reset();
-    await load();
+
+  async function load() {
+    if (!entries) return;
+    showText('กำลังโหลด…');
+    try {
+      const res = await fetch('/api/guestbook');
+      const data = await readJson(res);
+      if (!res.ok || !data || !Array.isArray(data.entries)) {
+        showText(MSG_LOAD_ERROR);
+        return;
+      }
+      renderEntries(data.entries as Entry[]);
+    } catch {
+      showText(MSG_LOAD_ERROR);
+    }
+  }
+
+  function setStatus(text: string) {
+    if (status) status.textContent = text;
+  }
+
+  form?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    if (!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const payload = {
+      name: String(fd.get('name') ?? ''),
+      message: String(fd.get('message') ?? ''),
+      website: String(fd.get('website') ?? ''),
+    };
+    if (submitBtn) submitBtn.disabled = true;
+    setStatus('กำลังส่ง…');
+    try {
+      const res = await fetch('/api/guestbook', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await readJson(res);
+      if (res.ok) {
+        setStatus(MSG_THANKS);
+        form.reset();
+        await load();
+      } else if (res.status === 501) {
+        setStatus(MSG_NOT_OPEN);
+      } else if (data && typeof data.error === 'string' && data.error.trim()) {
+        setStatus(data.error);
+      } else {
+        setStatus(MSG_SEND_ERROR);
+      }
+    } catch {
+      setStatus(MSG_NETWORK);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
   });
+
   load();
 </script>
-
