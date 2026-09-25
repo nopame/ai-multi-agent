@@ -1,21 +1,26 @@
 import type { APIRoute } from 'astro';
-import { insertGuestbook, listGuestbook } from '../../lib/db';
+import { insertGuestbook, listGuestbook, ValidationError } from '../../lib/db';
 
 export const prerender = false;
 
+const SAFE_INVALID = 'ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบแล้วลองใหม่';
+const SAFE_ERROR = 'เกิดข้อผิดพลาดฝั่งเซิร์ฟเวอร์ ลองใหม่อีกครั้งภายหลัง';
+
+const JSON_HEADERS = { 'content-type': 'application/json' };
+
+/** Error messages never include stack traces, SQL, or API paths (D9). */
 export const GET: APIRoute = async () => {
   try {
     const rows = listGuestbook();
     return new Response(JSON.stringify({ entries: rows }), {
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: JSON_HEADERS,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'error';
-    const status = message.startsWith('NOT_IMPLEMENTED') ? 501 : 500;
-    return new Response(JSON.stringify({ error: message }), {
-      status,
-      headers: { 'content-type': 'application/json' },
+    console.error('[guestbook] list failed:', err);
+    return new Response(JSON.stringify({ error: SAFE_ERROR }), {
+      status: 500,
+      headers: JSON_HEADERS,
     });
   }
 };
@@ -23,17 +28,31 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
+
+    // Honeypot: real visitors never fill the hidden "website" field.
+    if (typeof body?.website === 'string' && body.website.trim() !== '') {
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 201,
+        headers: JSON_HEADERS,
+      });
+    }
+
     const row = insertGuestbook(body);
     return new Response(JSON.stringify(row), {
       status: 201,
-      headers: { 'content-type': 'application/json' },
+      headers: JSON_HEADERS,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'error';
-    const status = message.startsWith('NOT_IMPLEMENTED') ? 501 : 400;
-    return new Response(JSON.stringify({ error: message }), {
-      status,
-      headers: { 'content-type': 'application/json' },
+    if (err instanceof ValidationError || err instanceof SyntaxError) {
+      return new Response(JSON.stringify({ error: SAFE_INVALID }), {
+        status: 400,
+        headers: JSON_HEADERS,
+      });
+    }
+    console.error('[guestbook] insert failed:', err);
+    return new Response(JSON.stringify({ error: SAFE_ERROR }), {
+      status: 500,
+      headers: JSON_HEADERS,
     });
   }
 };
