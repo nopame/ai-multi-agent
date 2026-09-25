@@ -7,11 +7,11 @@ Last updated: 2026-09-25 +07:00
 
 | ID | Task | Owner | Priority | Trigger / due | Notes |
 |---|---|---|---|---|---|
-| L6 | Bio ใหม่ ≤ 3 ย่อหน้า ไม่มีตัวเลขปี (D3) + Interests "หัวข้อ — ประโยคเดียว" (D5) + parser อ่าน `## Tagline` (D2) | Claude | P1 | ก่อน Lab 04 | เกณฑ์ใน DECISIONS |
-| L7 | Audit repo + โปรไฟล์ GitHub 5 ข้อ (D8) ก่อนวางลิงก์/คำว่า "ตรวจสอบได้" | human | P1 | ก่อน ship (Lab 08) | ไม่ผ่าน = ถอดลิงก์ + คำเคลม |
-| L8 | ฟอร์ม Contact สถานะ B: อีเมลตอบกลับจริง · อ่าน ≥ สัปดาห์ละครั้ง · ลบ 90 วัน (D7) · rate limit มี test (D6) | human + OpenCode | P1 | ก่อนเปิดฟอร์ม | ถ้าไม่ผ่านทั้ง L7/L8 = ห้าม ship (D9) |
-| L3 | ใช้ Contact / Tone จาก PROFILE ในหน้า UI (ธีมฟ้า/มิ้นต์/ส้ม) | Claude | P1 | Lab 04 | parser ยังไม่อ่านสองหัวข้อนี้ · ส้มเฉพาะปุ่มติดต่อ (D4) · contrast = Must (D11) |
-| L4 | `insertContact` ใน `db.ts` + API (honeypot + rate limit ตาม D6) · guestbook = Later (D12) | OpenCode | P1 | Lab 05 | ตอนนี้ตอบ 501 · UI ซ่อนฟอร์มตอน 501 (D7) |
+| L4 | `insertContact` ใน `db.ts` + `POST /api/contact` ตาม D7: honeypot + rate limit (มี test) · maxlength ชื่อ 80 / อีเมล 120 / ข้อความ 2000 ให้ตรง HTML · error สั้นไม่หลุด stack/SQL · guestbook = Later (D5) | OpenCode | P1 | Lab 05 (#10) | ดู `docs/handoffs/04-claude-to-opencode.md` · ตอนนี้ตอบ 501 |
+| L9 | สร้างอีเมล alias ของนามแฝงที่ตอบได้จริง → แก้ `## Contact` + กฎ Privacy (D11) | human | P1 | ก่อน ship (#12) | demo@example.com ไม่นับ · ไม่มี = ห้าม ship (D6) |
+| L7 | Audit repo + โปรไฟล์ GitHub 5 ข้อ (D8) ก่อนวางลิงก์/คำว่า "ตรวจสอบได้" | human | P1 | ก่อน ship (#11 · Lab 08) | ผ่านแล้ว → เปิด slot "ดูโค้ด" ใน `index.astro` + เพิ่ม `github` ใน `contact.astro` |
+| L8 | Gate ฟอร์ม Contact (D7): inbox nopame · อ่าน ≥ สัปดาห์ละครั้ง · ลบ 90 วัน · rate limit + honeypot มี test · maxlength ตรง HTML | human + OpenCode | P1 | ก่อนเปิดฟอร์ม | ผ่านแล้วตั้ง `CONTACT_FORM_ENABLED=1` · ship ได้แม้ฟอร์มซ่อน ถ้า L9 ผ่าน |
+| L10 | ตรวจด้วยตาที่ 360px: บรรทัดรอง ≤ 2 บรรทัด ไม่ตัดกลางคำ · ปุ่มติดต่อในจอแรก · contrast (D1/D4/D10) | Claude | P2 | Lab 06 (#13) | Playwright spec มีแล้วใน `playwright/smoke.spec.ts` |
 
 ## ปิดแล้ว (ย่อ — ย้ายหรือลบได้เมื่อรก)
 
@@ -19,7 +19,9 @@ Last updated: 2026-09-25 +07:00
 |---|---|---|
 | L1 | สร้าง STATUS + OPEN_LOOPS จาก example | 2026-09-25 |
 | L2 | ถก Brainstorm ใน `DEBATE.md` → ปิดใน `DECISIONS.md` | 2026-09-25 |
-| L5 | DEBATE ครบ Brand / UX / Devil (Agent Teams 5 รอบ · D1–D13) | 2026-09-25 |
+| L5 | DEBATE ถกใหม่ Brand / UX / Devil (subagents 2 รอบ · D1–D11) | 2026-09-25 |
+| L6 | PROFILE Bio / Tagline / "5 ปี" / Interests (D2/D3/D5 · #6) | 2026-09-25 |
+| L3 | UI ตาม D4/D5/D9 (#7/#8/#9) · Lab 04 | 2026-09-25 |
 
 ## กฎสั้น
 

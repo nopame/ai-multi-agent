@@ -1,43 +1,90 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { loadProfile } from '../lib/profile';
+const profile = loadProfile();
+// D8: GitHub/repo links stay off until the audit (L7) passes — add 'github' here then.
+const PUBLIC_CHANNELS = ['email'];
+const channels = profile.contacts.filter((c) => PUBLIC_CHANNELS.includes(c.label.toLowerCase()));
+// D6/D7: the form is conditional. It renders only after the gate passes (inbox owner,
+// retention, honeypot + rate limit with tests) — set CONTACT_FORM_ENABLED=1 then.
+// If the API still answers 501 the script hides the form and leaves the channels above.
+const formEnabled = process.env.CONTACT_FORM_ENABLED === '1';
 ---
-<BaseLayout title="Contact">
+<BaseLayout title={`ติดต่อ · ${profile.name}`}>
   <section class="card">
-    <h1>Contact</h1>
-    <p>ฟอร์มนี้โพสต์ไปที่ <code>POST /api/contact</code></p>
-    <form id="contact-form">
-      <label for="name">Name</label>
-      <input id="name" name="name" required maxlength="80" />
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" required maxlength="120" />
-      <label for="message">Message</label>
-      <textarea id="message" name="message" rows="5" required maxlength="2000"></textarea>
-      <p style="margin-top:1rem"><button type="submit">Send</button></p>
-      <p id="status" role="status" aria-live="polite"></p>
-    </form>
+    <h1>ติดต่อผม</h1>
+    {channels.length > 0 ? (
+      <>
+        <p>ทักมาคุยเรื่องงานได้เลยครับ ช่องทางที่ผมตอบได้เร็วที่สุด:</p>
+        <ul class="channels">
+          {channels.map((c) => (
+            <li>
+              {c.label.toLowerCase() === 'email'
+                ? <>อีเมล: <a href={`mailto:${c.value}`}>{c.value}</a></>
+                : <>{c.label}: {c.value}</>}
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : (
+      <p>ช่องทางติดต่อกำลังจะเปิดเร็ว ๆ นี้ครับ</p>
+    )}
   </section>
+
+  {formEnabled && (
+    <section class="card" id="form-card">
+      <h2>ส่งข้อความถึงผม</h2>
+      <form id="contact-form">
+        <label for="name">ชื่อ</label>
+        <input id="name" name="name" required maxlength="80" autocomplete="name" />
+        <label for="email">อีเมล</label>
+        <input id="email" name="email" type="email" required maxlength="120" autocomplete="email" />
+        <label for="message">ข้อความ</label>
+        <textarea id="message" name="message" rows="5" required maxlength="2000"></textarea>
+        <p style="margin-top:1rem"><button class="btn-cta" type="submit">ส่งข้อความ</button></p>
+        <p class="note">ผมเก็บข้อความไว้เพื่อตอบกลับเท่านั้น และลบภายใน 90 วันครับ</p>
+        <p id="status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  )}
 </BaseLayout>
+
+<style>
+  .channels { padding-left: 1.2rem; }
+  .note { font-size: 0.9rem; }
+  .btn-cta { cursor: pointer; }
+</style>
+
 <script>
-  const form = document.getElementById('contact-form');
+  const card = document.getElementById('form-card');
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
   const status = document.getElementById('status');
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const fd = new FormData(form);
-    const payload = Object.fromEntries(fd.entries());
-    status.textContent = 'Sending…';
+    if (!status) return;
+    const payload = Object.fromEntries(new FormData(form).entries());
+    status.textContent = 'กำลังส่ง…';
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      status.textContent = res.ok ? 'Sent. Thank you!' : `Error: ${data.error || res.status}`;
-      if (res.ok) form.reset();
-    } catch (err) {
-      status.textContent = 'Network error';
+      if (res.status === 501) {
+        // Backend not ready: hide the form, the email channel above stays (D6).
+        card?.setAttribute('hidden', '');
+        return;
+      }
+      if (res.ok) {
+        status.textContent = 'ได้รับข้อความแล้วครับ';
+        form.reset();
+      } else {
+        // D9: never show server error text — always point to a next step.
+        status.textContent = 'ส่งไม่สำเร็จ ลองตรวจข้อมูลแล้วส่งอีกครั้ง หรืออีเมลหาผมตามช่องทางด้านบนครับ';
+      }
+    } catch {
+      status.textContent = 'เชื่อมต่อไม่ได้ ลองอีกครั้ง หรืออีเมลหาผมตามช่องทางด้านบนครับ';
     }
   });
 </script>
-
