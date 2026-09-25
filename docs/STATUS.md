@@ -3,16 +3,17 @@
 > คัดลอกเป็น `docs/STATUS.md` ใน Lab 00 · อ่านทุก session · **สั้น** · single-writer ต่อรอบ  
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
-Last updated: 2026-09-25 15:10 +07:00  
+Last updated: 2026-09-25 16:22 +07:00  
 Updated by: OpenCode
 
 ## Current goal
 
-- Lab 05 **merged** เข้า main (PR #15 · `791df8e`) · main เขียว: `npm test` 14/14 · `test:labs` 2/2 · build OK · **หยุดรอที่ Lab 06 (Playwright QA) ตามคำสั่งผู้เรียน** · Lab 05b swarm ไม่จำเป็น (test เขียวหมดแล้ว)
+- **PR `lab-05-backend` (draft) รอ review/merge** — backend hardening จาก open loops: L12 (rate limit `POST /api/guestbook` แบบเดียวกับ contact) + L10 (proxy-aware client IP + bucket pruning) · `npm test` 19/19 · `test:labs` 2/2 · build OK · Lab 06 (QA/a11y) ทำบน `lab-05b-swarm` + working tree หลัก ยังไม่ commit
 
 ## Done
 
-- Lab 05 ปิดสมบูรณ์: PR #15 merged → main · issue #10 ปิดอัตโนมัติ · branch `lab-05-backend` ลบแล้ว · ตรวจซ้ำบน main แล้ว (npm test 14/14 · test:labs 2/2 · build OK)
+- **Lab 05 follow-up (branch `lab-05-backend` ใหม่)**: `src/lib/client-ip.ts` (ใหม่ — entry ขวาสุดของ `x-forwarded-for` + fallback `x-real-ip`) · `rate-limit.ts` เพิ่ม bucket pruning · guestbook 429 + `retry-after` · `tests/guestbook-api.test.ts` 5 test — ปิด L10/L12
+- Lab 05 ปิดสมบูรณ์: PR #15 merged → main · issue #10 ปิดอัตโนมัติ · branch `lab-05-backend` เดิมลบแล้ว (รอบนี้สร้างใหม่จาก main) · main เขียว (npm test 14/14 · test:labs 2/2 · build OK)
 
 - Lab 05: `src/lib/db.ts` (validate + insert + retention 90 วัน + cap 50) · `src/lib/rate-limit.ts` · `src/pages/api/{contact,guestbook}.ts` (honeypot `website` · 429 · error ปลอดภัย D9) · `tests/contact-api.test.ts` 5 test (D6: rate limit มี test) · `opencode.json` (GitHub MCP ผ่าน `{env:GITHUB_PAT}` จาก `.env`)
 - Lab 02 ปิดแล้ว (Agent Teams 3 บทบาท · 5 รอบ) → `DECISIONS.md` D1–D13 · Lab 03 issues #6–#13 สร้างแล้ว
@@ -22,7 +23,7 @@ Updated by: OpenCode
 
 ## In progress
 
-- —
+- PR `lab-05-backend` → main (draft): รอ human review/merge
 
 ## Blocked
 
@@ -30,13 +31,13 @@ Updated by: OpenCode
 
 ## Next actions
 
-1. **Lab 04 redo (Claude/frontend)** — หน้าตาม D1–D13 · ฟอร์มต้องเพิ่ม hidden honeypot `website` + ถอด `POST /api/contact` ออกจาก markup (D9) · API พร้อมแล้ว (ดู L9)
-2. **Lab 06 QA (Playwright)** — จุดหยุดที่ผู้เรียนกำหนดไว้รอบนี้ · ต้อง start dev server ก่อน (`playwright.config.ts` ไม่มี webServer)
-3. PR #14 ([Lab 04] Frontend pages) ยังเปิดอยู่บน branch เก่า — ให้ Claude ตัดสินใจ rebas/ปิด/redo ก่อน merge (แตะ docs อาจตีกับ commit ของ Lab 05)
+1. Merge PR `lab-05-backend` (L10/L12) — ถ้า PR #16 (lab-05b-swarm) merge ก่อน อาจต้อง rebase เล็กน้อย (แตะ `guestbook.ts` ร่วมกัน แต่คนละบล็อก)
+2. **Lab 04 redo (Claude/frontend)** — หน้าตาม D1–D13 · ฟอร์มต้องเพิ่ม hidden honeypot `website` + ถอด `POST /api/contact` ออกจาก markup (D9) · API พร้อมแล้ว (ดู L9)
+3. **Lab 06 QA (Playwright)** — จุดหยุดที่ผู้เรียนกำหนดไว้รอบนี้ · ต้อง start dev server ก่อน (`playwright.config.ts` ไม่มี webServer)
 
 ## Files changed in latest session
 
-- `src/lib/db.ts` · `src/lib/rate-limit.ts` (ใหม่) · `src/pages/api/contact.ts` · `src/pages/api/guestbook.ts` · `tests/contact-api.test.ts` (ใหม่) · `opencode.json` (ใหม่) · `docs/STATUS.md` · `docs/OPEN_LOOPS.md` — ทั้งหมดผ่าน PR #15 เข้า main แล้ว
+- `src/lib/client-ip.ts` (ใหม่) · `src/lib/rate-limit.ts` · `src/pages/api/contact.ts` · `src/pages/api/guestbook.ts` · `tests/guestbook-api.test.ts` (ใหม่) · `docs/STATUS.md` · `docs/OPEN_LOOPS.md` — branch `lab-05-backend` (worktree `C:\demo\ai-multi-agent-lab05-backend`)
 
 ## Notes
 
