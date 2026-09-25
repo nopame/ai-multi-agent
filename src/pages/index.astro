@@ -1,26 +1,45 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadProfile, paragraphs, listItems } from '../lib/profile';
+import { loadProfile, paragraphs, splitHeadline } from '../lib/profile';
+import { githubProfileUrl } from '../lib/site';
 const profile = loadProfile();
-const audience = listItems(profile.audience);
+const { main, sub } = splitHeadline(profile.headline);
+const github = githubProfileUrl(profile);
 ---
-<BaseLayout title={`${profile.name} · Home`} description={profile.headline}>
-  <section class="card">
-    <p style="margin:0;color:var(--accent);font-weight:700">Personal branding site</p>
-    <h1>{profile.name}</h1>
-    <p style="font-size:1.2rem;color:var(--text)">{profile.headline}</p>
-    <p>{paragraphs(profile.bio)[0]}</p>
-    <p><strong>Audience</strong></p>
-    <ul>
-      {audience.map((item) => <li>{item}</li>)}
-    </ul>
+<BaseLayout title={`${profile.name} · ${main}`} description={profile.headline}>
+  <section class="card hero">
+    <p class="eyebrow">{profile.name}</p>
+    <!-- D1: one <h1>, two visual levels · the sub line must stay visible on every screen size -->
+    <h1>
+      <span class="h1-main">{main}</span>
+      {sub && <span class="h1-sub">{sub}</span>}
+    </h1>
+    {profile.tagline && <p class="tagline">{profile.tagline}</p>}
+    <p class="lead">{paragraphs(profile.bio)[0]}</p>
+    <p class="actions">
+      <a class="btn btn-cta" href="/contact">ติดต่อผม</a>
+      {github && <a href={github} rel="me noopener">ดูผลงานบน GitHub</a>}
+    </p>
   </section>
-  <section class="grid">
-    <a class="card" href="/about"><h2>About</h2><p>เรื่องราวและเส้นทาง</p></a>
-    <a class="card" href="/interests"><h2>Interests</h2><p>หัวข้อที่สนใจ</p></a>
-    <a class="card" href="/contact"><h2>Contact</h2><p>ส่งข้อความถึงฉัน</p></a>
-    <a class="card" href="/guestbook"><h2>Guestbook</h2><p>ฝากคำทักทาย</p></a>
+  <section class="grid" aria-label="หน้าอื่น">
+    <a class="card tile" href="/about"><h2>เกี่ยวกับผม</h2><p>ผมทำงานอย่างไร และใครทำส่วนไหนของเว็บนี้</p></a>
+    <a class="card tile" href="/interests"><h2>ความสนใจ</h2><p>สิ่งที่ผมทำจริงในแต่ละหัวข้อ</p></a>
+    <a class="card tile" href="/guestbook"><h2>สมุดเยี่ยม</h2><p>ฝากคำทักทายสั้น ๆ ไว้ได้</p></a>
   </section>
 </BaseLayout>
 
+<style>
+  .hero { padding: 1.75rem 1.5rem; }
+  .eyebrow { margin: 0; color: var(--mint); font-weight: 700; }
+  h1 { margin: 0.35rem 0 0.75rem; }
+  .h1-main { display: block; font-size: clamp(2rem, 7vw, 3rem); letter-spacing: -0.01em; }
+  .h1-sub { display: block; font-size: clamp(1.1rem, 4.2vw, 1.5rem); font-weight: 600; color: var(--accent); margin-top: 0.35rem; }
+  .tagline { color: var(--text); font-size: 1.05rem; margin: 0 0 0.75rem; }
+  .lead { margin: 0 0 1.25rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; margin: 0; }
+  .tile { text-decoration: none; margin: 0; }
+  .tile:hover { border-color: var(--accent); }
+  .tile h2 { margin: 0 0 0.25rem; font-size: 1.15rem; color: var(--accent); }
+  .tile p { margin: 0; }
+</style>
