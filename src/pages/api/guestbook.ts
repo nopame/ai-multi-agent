@@ -1,9 +1,12 @@
 import type { APIRoute } from 'astro';
 import { insertGuestbook, listGuestbook, ValidationError } from '../../lib/db';
+import { checkRateLimit } from '../../lib/rate-limit';
+import { getClientIp } from '../../lib/client-ip';
 
 export const prerender = false;
 
 const SAFE_INVALID = 'ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบแล้วลองใหม่';
+const SAFE_LIMIT = 'ส่งข้อความบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่';
 const SAFE_ERROR = 'เกิดข้อผิดพลาดฝั่งเซิร์ฟเวอร์ ลองใหม่อีกครั้งภายหลัง';
 
 const JSON_HEADERS = { 'content-type': 'application/json' };
@@ -34,6 +37,19 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ ok: true }), {
         status: 201,
         headers: JSON_HEADERS,
+      });
+    }
+
+    // Rate limit identical to /api/contact (closes L12).
+    const ip = getClientIp(request);
+    const limit = checkRateLimit(`guestbook:${ip}`);
+    if (!limit.allowed) {
+      return new Response(JSON.stringify({ error: SAFE_LIMIT }), {
+        status: 429,
+        headers: {
+          ...JSON_HEADERS,
+          'retry-after': String(limit.retryAfterSeconds),
+        },
       });
     }
 

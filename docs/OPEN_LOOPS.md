@@ -3,7 +3,7 @@
 > คัดลอกเป็น `docs/OPEN_LOOPS.md` ใน Lab 00 · งานค้างที่ยังไม่ปิด · ลบแถวเมื่อเสร็จ  
 > Owner = `Claude` | `OpenCode` | `human`
 
-Last updated: 2026-09-25 16:06 +07:00
+Last updated: 2026-09-25 16:50 +07:00
 
 | ID | Task | Owner | Priority | Trigger / due | Notes |
 |---|---|---|---|---|---|
@@ -11,14 +11,15 @@ Last updated: 2026-09-25 16:06 +07:00
 | L7 | Audit repo + โปรไฟล์ GitHub 5 ข้อ (D8) ก่อนวางลิงก์/คำว่า "ตรวจสอบได้" | human | P1 | ก่อน ship (Lab 08) | ไม่ผ่าน = ถอดลิงก์ + คำเคลม |
 | L8 | ฟอร์ม Contact สถานะ B: อีเมลตอบกลับจริง · อ่าน ≥ สัปดาห์ละครั้ง (D7/D11) | human | P1 | ก่อนเปิดฟอร์ม | rate limit มี test แล้ว (`tests/contact-api.test.ts`) · retention 90 วัน ทำฝั่ง server แล้ว · ถ้าไม่ผ่านทั้ง L7/L8 = ห้าม ship (D9) |
 | L3 | ใช้ Contact / Tone จาก PROFILE ในหน้า UI (ธีมฟ้า/มิ้นต์/ส้ม) | Claude | P1 | Lab 04 (redo) | parser ยังไม่อ่านสองหัวข้อนี้ · ส้มเฉพาะปุ่มติดต่อ (D4) · contrast = Must (D11) |
-| L12 | Rate limit `POST /api/guestbook` แบบเดียวกับ contact | OpenCode | P3 | ก่อนเปิด guestbook | จาก `docs/fe-be-contract-check.md` |
 | L14 | ล้าง entry ทดสอบใน `data/site.sqlite` ก่อน demo | human | P3 | ก่อน demo / ship | รอยืนยัน — มีทั้ง entry ของ QA และที่ผู้เรียนพิมพ์เอง |
-| L10 | Proxy-aware client IP (`x-forwarded-for` โดน spoof ได้) + bucket pruning ก่อน ship | OpenCode | P3 | ก่อน ship (Lab 08) | ต่อยอดจาก Lab 05 — in-memory limiter พอสำหรับ v1 instance เดียว |
+| L16 | `client-ip.ts`: ไม่มี header จะตกไปใช้ `'local'` = bucket ร่วมทุกคน → ใช้ `clientAddress` ของ Astro · เขียนเงื่อนไข "มี trusted proxy 1 ชั้น" ไว้ใน docs | OpenCode | P2 | ก่อน ship (Lab 08) | จากรีวิว PR #17 |
 
 ## ปิดแล้ว (ย่อ — ย้ายหรือลบได้เมื่อรก)
 
 | ID | Task | Closed |
 |---|---|---|
+| L10 | Proxy-aware client IP (ใช้ entry ขวาสุดของ `x-forwarded-for` + fallback `x-real-ip`) + bucket pruning ใน `checkRateLimit` | 2026-09-25 (PR #17) |
+| L12 | Rate limit `POST /api/guestbook` แบบเดียวกับ contact (429 + `retry-after`) | 2026-09-25 (PR #17 · `tests/guestbook-api.test.ts`) |
 | L15 | a11y A1–A4 (ขอบ input 1.4.11 · focus หลังส่ง · focus ring · คำแนะนำฟอร์ม) · A5–A7 = P2 ดู `docs/QA.md` | 2026-09-25 (Lab 06 a11y) |
 | L11 | ถอด Guestbook ออกจาก nav + การ์ด Home (D5) | 2026-09-25 (Lab 06 a11y) |
 | L13 | Contact error suffix ซ้ำ | 2026-09-25 (Lab 06 a11y) |

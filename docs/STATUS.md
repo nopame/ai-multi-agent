@@ -3,14 +3,17 @@
 > คัดลอกเป็น `docs/STATUS.md` ใน Lab 00 · อ่านทุก session · **สั้น** · single-writer ต่อรอบ  
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
-Last updated: 2026-09-25 16:40 +07:00  
+Last updated: 2026-09-25 16:50 +07:00  
 Updated by: Claude
 
 ## Current goal
 
-- Lab 05b swarm เสร็จบน branch `lab-05b-swarm` (20/20 turns · ดู `docs/SWARM.md` · OpenCode ตรวจสัญญา FE↔BE ผ่าน → `docs/fe-be-contract-check.md`) · ฟอร์ม contact/guestbook ส่งได้บน localhost · Lab 06 (E2E + a11y) commit แล้ว (`aa9f1ed`) · ทั้งหมดอยู่ใน PR #16 (CI เขียว · รีวิวแล้ว) · **รอ human merge #16 → rebase + merge #17**
+- Lab 05b + 06 + follow-up L10/L12 อยู่บน main แล้ว (PR #16 + #17) · ถัดไป = Lab 07 Review
 
 ## Done
+
+- PR #17 merged (rebase บน main หลัง #16): `src/lib/client-ip.ts` (entry ขวาสุดของ `x-forwarded-for` + fallback `x-real-ip`) · bucket pruning ใน `rate-limit.ts` · guestbook 429 + `retry-after` · `tests/guestbook-api.test.ts` — ปิด L10/L12 · ข้อแก้จากรีวิว → L16
+- PR #16 merged (`cbc0e96`): Lab 05b ฟอร์ม + Lab 06 E2E/a11y (`aa9f1ed`)
 
 - Lab 06 E2E (Playwright MCP): 10/10 step ผ่าน — Home/About/Interests/Contact/Guestbook 200 · contact + guestbook POST 201 · invalid → 400 · ผล + screenshots ใน `docs/QA.md` / `docs/screenshots/` · ถัดไป = a11y
 - Lab 06 a11y: axe 0 violation ทุกหน้า · แก้ meta description หลุดคำคอร์ส (+ guard test ใหม่) · skip link · title · guestbook `<time>` · ถอด Guestbook จาก nav/การ์ด (L11) · error ซ้ำ (L13) · npm test 15/15 · test:labs 2/2 · build OK
@@ -26,8 +29,7 @@ Updated by: Claude
 
 ## In progress
 
-- PR #16 (`lab-05b-swarm` · Lab 05b + 06) → main: รีวิวแล้ว (คอมเมนต์) · รอ human merge — approve ไม่ได้เพราะเป็น PR ของตัวเอง
-- PR #17 (`lab-05-backend` · L10/L12 · draft): รีวิวแล้ว · merge หลัง #16 ต้อง rebase แก้ conflict ใน STATUS/OPEN_LOOPS · ข้อแก้ `'local'` fallback → `clientAddress` เป็นงาน OpenCode
+- —
 
 ## Blocked
 
@@ -35,7 +37,7 @@ Updated by: Claude
 
 ## Next actions
 
-1. **human:** merge PR #16 → จากนั้น rebase #17 (conflict เฉพาะ STATUS/OPEN_LOOPS) → merge #17
+1. **OpenCode:** L16 (`clientAddress` แทน fallback `'local'` ใน `client-ip.ts`)
 2. PR #14 ([Lab 04] branch เก่า) — แนะนำปิด: แก้ `db.ts`/`api/**` ผิด ownership · ชนกับ main 6 ไฟล์ · ถูกแทนด้วย #15/#16 · เช็ก `profile.ts`/`profile.test.ts`/`playwright/smoke.spec.ts` ก่อนปิดว่ายังต้องใช้ไหม
 3. PR #5 — ปิดแล้ว (โค้ดเหมือนกับที่อยู่บน main แล้ว)
 4. ถัดไป = Lab 07 Review

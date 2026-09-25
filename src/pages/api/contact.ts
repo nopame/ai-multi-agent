@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { insertContact, ValidationError } from '../../lib/db';
 import { checkRateLimit } from '../../lib/rate-limit';
+import { getClientIp } from '../../lib/client-ip';
 
 export const prerender = false;
 
@@ -30,8 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const ip =
-      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local';
+    const ip = getClientIp(request);
     const limit = checkRateLimit(`contact:${ip}`);
     if (!limit.allowed) {
       return new Response(JSON.stringify({ error: SAFE_LIMIT }), {

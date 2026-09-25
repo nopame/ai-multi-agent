@@ -13,6 +13,8 @@ export type RateLimitResult = { allowed: boolean; retryAfterSeconds: number };
 
 export function checkRateLimit(key: string): RateLimitResult {
   const now = Date.now();
+  pruneBuckets(now);
+
   const bucket = buckets.get(key);
 
   if (!bucket || bucket.resetAt <= now) {
@@ -29,6 +31,13 @@ export function checkRateLimit(key: string): RateLimitResult {
 
   bucket.count += 1;
   return { allowed: true, retryAfterSeconds: 0 };
+}
+
+/** Drop expired buckets so the map cannot grow unbounded. */
+function pruneBuckets(now: number): void {
+  for (const [key, bucket] of buckets) {
+    if (bucket.resetAt <= now) buckets.delete(key);
+  }
 }
 
 /** Test helper — clears all buckets. */
