@@ -4,14 +4,15 @@
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
 Last updated: 2026-09-25 +07:00  
-Updated by: Claude
+Updated by: OpenCode
 
 ## Current goal
 
-- Lab 04 UI เสร็จ → ส่งต่อ OpenCode ทำ Lab 05 backend ตาม handoff `docs/handoffs/04-claude-to-opencode.md`
+- Lab 05 backend เสร็จ (test ทั้งสองชุดเขียว + build ผ่าน) → ส่งต่อ Claude review/QA ตาม handoff `docs/handoffs/05-opencode-to-claude.md`
 
 ## Done
 
+- Lab 05 backend: `db.ts` (validate/trim/retention 90 วัน) + `rate-limit.ts` (5 ครั้ง/10 นาที/IP) + routes ตาม API contract (201/400/429/500/501 + honeypot) + `tests/api.test.ts` 27 tests · `npm test` 45/45 · `npm run test:labs` 2/2 · `npm run build` ผ่าน · smoke ผ่าน curl จริง
 - `docs/PROFILE.md` เนื้อหาจริง (nopame) · parser `src/lib/profile.ts` อ่านหัวข้อหลายบรรทัด · Home/About แสดง Bio + Audience
 - `docs/DEBATE.md` ครบ Brand / UX / Devil (5 รอบ) + ตารางความขัดแย้ง
 - `docs/DECISIONS.md` D1–D13 (ฉบับใหม่ — ไฟล์ D1–D9 เดิมหาไม่พบ) · PROFILE: Headline + Tagline ตาม D1/D2
@@ -25,16 +26,16 @@ Updated by: Claude
 
 ## Blocked
 
-- ก่อน ship: audit repo/GitHub (D8) · ฟอร์ม Contact สถานะ B ต้องมีอีเมลตอบกลับจริง + retention (D7) · ต้องมีช่องติดต่อใช้ได้ ≥ 1 (D9)
+- ก่อน ship: audit repo/GitHub (D8) · ฟอร์ม Contact สถานะ B ขาดเฉพาะส่วนคน — อีเมลตอบกลับจริง + อ่าน ≥ สัปดาห์ละครั้ง (D7) · ต้องมีช่องติดต่อใช้ได้ ≥ 1 (D9)
 
 ## Next actions
 
-1. OpenCode: Lab 05 backend ตาม API contract ใน DECISIONS → `test:labs` เขียว
-2. Lab 03 issues (ข้ามไปก่อน เพราะ GitHub MCP เชื่อมต่อไม่ได้) · Lab 06 Playwright · Lab 08 ship gate
+1. Claude: review contract เทียบ UI + commit รวม (backend ไม่ commit) · Lab 06 Playwright flow ฟอร์มจริง · Lab 03 issues เมื่อ MCP ใช้ได้ · Lab 08 ship gate
+2. —
 
 ## Files changed in latest session
 
-- `src/layouts/BaseLayout.astro` · `src/pages/*.astro` · `src/lib/{profile,site}.ts` · tests · `docs/{PROFILE,DECISIONS}.md` · handoff 04
+- `src/lib/db.ts` · `src/lib/rate-limit.ts` (ใหม่) · `src/pages/api/{contact,guestbook}.ts` · `tests/api.test.ts` (ใหม่) · handoff 05 · STATUS/OPEN_LOOPS
 
 ## Notes
 
