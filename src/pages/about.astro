@@ -1,36 +1,14 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadProfile, paragraphs, splitInterest } from '../lib/profile';
+import { loadProfile, paragraphs } from '../lib/profile';
 const profile = loadProfile();
-// D3: at most 3 paragraphs · D5: About shows interest titles only, details live on /interests
-const bio = paragraphs(profile.bio).slice(0, 3);
-const interestTitles = profile.interests.map((i) => splitInterest(i).title);
 ---
-<BaseLayout title={`เกี่ยวกับ · ${profile.name}`}>
+<BaseLayout title={`About · ${profile.name}`}>
   <article class="card">
-    <h1>เกี่ยวกับผม</h1>
-    {bio.map((p) => <p>{p}</p>)}
+    <h1>About</h1>
+    {paragraphs(profile.bio).map((p) => <p>{p}</p>)}
+    <p>เรื่องราวเพิ่มเติม — timeline, skills และลิงก์จะอัปเดตเร็ว ๆ นี้</p>
   </article>
-  <section class="card">
-    <h2>ใครทำส่วนไหนของเว็บนี้</h2>
-    <ul class="roles">
-      <li><span class="tag">ผม</span> เขียน spec วางขอบเขตงาน และ review ทุกการเปลี่ยนแปลง</li>
-      <li><span class="tag">Frontend agent</span> สร้างหน้าเว็บและสไตล์ตาม spec</li>
-      <li><span class="tag">Backend agent</span> สร้าง API และฐานข้อมูล SQLite ตาม spec</li>
-    </ul>
-  </section>
-  <section class="card">
-    <h2>สิ่งที่ผมสนใจ</h2>
-    <ul>
-      {interestTitles.map((t) => <li>{t}</li>)}
-    </ul>
-    <p><a href="/interests">ดูรายละเอียดแต่ละหัวข้อ</a></p>
-  </section>
-  <p><a class="btn btn-cta" href="/contact">ติดต่อผม</a></p>
 </BaseLayout>
 
-<style>
-  .roles { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.6rem; }
-  .roles .tag { margin-right: 0.4rem; }
-</style>

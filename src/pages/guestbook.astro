@@ -1,125 +1,46 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
-// D14: entries render as text only (textContent — never innerHTML) · length caps · honeypot · no email collected
 ---
-<BaseLayout title="สมุดเยี่ยม · nopame">
+<BaseLayout title="Guestbook">
   <section class="card">
-    <h1>สมุดเยี่ยม</h1>
-    <p>ฝากคำทักทายสั้น ๆ ไว้ได้ครับ ข้อความจะแสดงต่อสาธารณะ จึงไม่ต้องใส่ข้อมูลส่วนตัว</p>
-    <form id="gb-form" novalidate>
-      <label for="gb-name">ชื่อที่แสดง</label>
-      <input id="gb-name" name="name" required maxlength="80" autocomplete="nickname" />
-      <label for="gb-message">ข้อความ</label>
-      <textarea id="gb-message" name="message" rows="3" required maxlength="500"></textarea>
-      <div class="hp" aria-hidden="true">
-        <label for="gb-website">เว็บไซต์</label>
-        <input id="gb-website" name="website" tabindex="-1" autocomplete="off" />
-      </div>
-      <p class="submit"><button class="btn btn-primary" type="submit">ลงชื่อ</button></p>
-      <p id="gb-status" class="status" role="status" aria-live="polite"></p>
+    <h1>Guestbook</h1>
+    <p>ฝากข้อความไว้ได้ทางฟอร์มนี้ — อ่าน/เขียนผ่าน <code>/api/guestbook</code></p>
+    <form id="gb-form">
+      <label for="name">Name</label>
+      <input id="name" name="name" required maxlength="80" />
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="3" required maxlength="500"></textarea>
+      <p style="margin-top:1rem"><button type="submit">Sign</button></p>
     </form>
-  </section>
-  <section class="card" aria-labelledby="entries-title">
-    <h2 id="entries-title">ข้อความล่าสุด</h2>
-    <div id="entries" aria-live="polite"><p>กำลังโหลด…</p></div>
+    <div id="entries" class="card" style="margin-top:1.25rem" aria-live="polite">Loading…</div>
   </section>
 </BaseLayout>
-
 <script>
-  type Entry = { id: number; name: string; message: string; created_at: string };
-  const entriesEl = document.getElementById('entries');
-  const form = document.getElementById('gb-form') as HTMLFormElement | null;
-  const statusEl = document.getElementById('gb-status');
-  const NOT_READY = 'สมุดเยี่ยมกำลังเตรียมพร้อมครับ ลองกลับมาใหม่ภายหลังนะครับ';
-
-  function setStatus(text: string, kind: 'ok' | 'err' | '' = '') {
-    if (!statusEl) return;
-    statusEl.textContent = text;
-    statusEl.className = `status ${kind}`.trim();
-  }
-
-  function note(text: string) {
-    if (!entriesEl) return;
-    const p = document.createElement('p');
-    p.textContent = text;
-    entriesEl.replaceChildren(p);
-  }
-
-  function formatDate(value: string) {
-    const d = new Date(value.includes('T') ? value : `${value.replace(' ', 'T')}Z`);
-    return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('th-TH', { dateStyle: 'medium' });
-  }
-
-  function render(entries: Entry[]) {
-    if (!entriesEl) return;
-    if (!entries.length) return note('ยังไม่มีข้อความ มาเป็นคนแรกได้เลยครับ');
-    entriesEl.replaceChildren(
-      ...entries.map((e) => {
-        const item = document.createElement('article');
-        item.className = 'entry';
-        const who = document.createElement('strong');
-        who.textContent = e.name;
-        const text = document.createElement('p');
-        text.textContent = e.message;
-        const when = document.createElement('small');
-        when.textContent = formatDate(e.created_at);
-        item.append(who, text, when);
-        return item;
-      }),
-    );
-  }
-
+  const entries = document.getElementById('entries');
+  const form = document.getElementById('gb-form');
   async function load() {
-    try {
-      const res = await fetch('/api/guestbook');
-      if (res.status === 501) return note(NOT_READY);
-      if (!res.ok) return note('โหลดข้อความไม่สำเร็จ ลองรีเฟรชหน้าอีกครั้งนะครับ');
-      const data = await res.json();
-      render(Array.isArray(data.entries) ? data.entries : []);
-    } catch {
-      note('โหลดข้อความไม่สำเร็จ ลองรีเฟรชหน้าอีกครั้งนะครับ');
-    }
-  }
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!form.checkValidity()) {
-      setStatus('กรุณากรอกชื่อและข้อความก่อนลงชื่อครับ', 'err');
-      form.reportValidity();
+    const res = await fetch('/api/guestbook');
+    const data = await res.json();
+    if (!res.ok) {
+      entries.textContent = data.error || `HTTP ${res.status}`;
       return;
     }
-    const button = form.querySelector('button');
-    button?.setAttribute('disabled', '');
-    try {
-      const res = await fetch('/api/guestbook', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
-      });
-      if (res.status === 501) return setStatus(NOT_READY, 'err');
-      if (res.ok) {
-        form.reset();
-        setStatus('ขอบคุณที่แวะมาครับ', 'ok');
-        return load();
-      }
-      const data = await res.json().catch(() => ({}));
-      const safe = (res.status === 400 || res.status === 429) && typeof data.error === 'string' ? data.error : '';
-      setStatus(safe || 'ลงชื่อไม่สำเร็จ ลองใหม่อีกครั้งภายหลังนะครับ', 'err');
-    } catch {
-      setStatus('ลงชื่อไม่สำเร็จ ลองใหม่อีกครั้งภายหลังนะครับ', 'err');
-    } finally {
-      button?.removeAttribute('disabled');
-    }
+    entries.innerHTML = (data.entries || [])
+      .map((e) => `<p><strong>${e.name}</strong>: ${e.message}<br/><small>${e.created_at}</small></p>`)
+      .join('') || '<p>No entries yet.</p>';
+  }
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = Object.fromEntries(new FormData(form).entries());
+    await fetch('/api/guestbook', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    form.reset();
+    await load();
   });
-
   load();
 </script>
 
-<style>
-  .submit { margin: 1rem 0 0; }
-  #entries :global(.entry) { border-top: 1px solid var(--border); padding: 0.75rem 0; }
-  #entries :global(.entry:first-child) { border-top: 0; padding-top: 0; }
-  #entries :global(.entry p) { margin: 0.2rem 0; color: var(--text); overflow-wrap: anywhere; }
-  #entries :global(.entry small) { color: var(--muted); }
-</style>
