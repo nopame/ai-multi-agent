@@ -3,12 +3,12 @@
 > คัดลอกเป็น `docs/STATUS.md` ใน Lab 00 · อ่านทุก session · **สั้น** · single-writer ต่อรอบ  
 > ดู [`COURSE.md`](../COURSE.md) ชั้น State (Hot)
 
-Last updated: 2026-09-25 16:06 +07:00  
+Last updated: 2026-09-25 16:40 +07:00  
 Updated by: Claude
 
 ## Current goal
 
-- Lab 05b swarm เสร็จบน branch `lab-05b-swarm` (20/20 turns · ดู `docs/SWARM.md` · OpenCode ตรวจสัญญา FE↔BE ผ่าน → `docs/fe-be-contract-check.md`) · ฟอร์ม contact/guestbook ส่งได้บน localhost · ยังไม่ commit/PR · ถัดไป = Lab 06 QA
+- Lab 05b swarm เสร็จบน branch `lab-05b-swarm` (20/20 turns · ดู `docs/SWARM.md` · OpenCode ตรวจสัญญา FE↔BE ผ่าน → `docs/fe-be-contract-check.md`) · ฟอร์ม contact/guestbook ส่งได้บน localhost · Lab 06 (E2E + a11y) commit แล้ว (`aa9f1ed`) · ทั้งหมดอยู่ใน PR #16 (CI เขียว · รีวิวแล้ว) · **รอ human merge #16 → rebase + merge #17**
 
 ## Done
 
@@ -26,7 +26,8 @@ Updated by: Claude
 
 ## In progress
 
-- — (Lab 06 E2E + a11y เสร็จ · ยังไม่ commit)
+- PR #16 (`lab-05b-swarm` · Lab 05b + 06) → main: รีวิวแล้ว (คอมเมนต์) · รอ human merge — approve ไม่ได้เพราะเป็น PR ของตัวเอง
+- PR #17 (`lab-05-backend` · L10/L12 · draft): รีวิวแล้ว · merge หลัง #16 ต้อง rebase แก้ conflict ใน STATUS/OPEN_LOOPS · ข้อแก้ `'local'` fallback → `clientAddress` เป็นงาน OpenCode
 
 ## Blocked
 
@@ -34,13 +35,14 @@ Updated by: Claude
 
 ## Next actions
 
-1. **Lab 04 redo (Claude/frontend)** — หน้าตาม D1–D13 · ฟอร์มต้องเพิ่ม hidden honeypot `website` + ถอด `POST /api/contact` ออกจาก markup (D9) · API พร้อมแล้ว (ดู L9)
-2. **Lab 06 QA (Playwright)** — จุดหยุดที่ผู้เรียนกำหนดไว้รอบนี้ · ต้อง start dev server ก่อน (`playwright.config.ts` ไม่มี webServer)
-3. PR #14 ([Lab 04] Frontend pages) ยังเปิดอยู่บน branch เก่า — ให้ Claude ตัดสินใจ rebas/ปิด/redo ก่อน merge (แตะ docs อาจตีกับ commit ของ Lab 05)
+1. **human:** merge PR #16 → จากนั้น rebase #17 (conflict เฉพาะ STATUS/OPEN_LOOPS) → merge #17
+2. PR #14 ([Lab 04] branch เก่า) — แนะนำปิด: แก้ `db.ts`/`api/**` ผิด ownership · ชนกับ main 6 ไฟล์ · ถูกแทนด้วย #15/#16 · เช็ก `profile.ts`/`profile.test.ts`/`playwright/smoke.spec.ts` ก่อนปิดว่ายังต้องใช้ไหม
+3. PR #5 — ปิดแล้ว (โค้ดเหมือนกับที่อยู่บน main แล้ว)
+4. ถัดไป = Lab 07 Review
 
 ## Files changed in latest session
 
-- `src/pages/contact.astro` · `src/pages/guestbook.astro` · `docs/SWARM.md` (ใหม่) · `docs/STATUS.md` · `docs/OPEN_LOOPS.md` (branch `lab-05b-swarm`)
+- Lab 06: `src/layouts/BaseLayout.astro` · `src/pages/{index,contact,guestbook}.astro` · `tests/public-site.test.ts` · `docs/QA.md` · `docs/screenshots/` · `.gitignore` (`aa9f1ed` · branch `lab-05b-swarm`)
 
 ## Notes
 
