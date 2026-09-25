@@ -10,7 +10,7 @@ const items = profile.interests.map(splitInterest);
     <h1>ความสนใจ</h1>
     <p>หัวข้อที่ผมลงมือทำจริง พร้อมสิ่งที่ทำในแต่ละเรื่อง</p>
   </section>
-  <section class="grid">
+  <section class="grid interests">
     {items.map((i) => (
       <article class="card item">
         <h2>{i.title}</h2>
@@ -21,6 +21,8 @@ const items = profile.interests.map(splitInterest);
 </BaseLayout>
 
 <style>
+  /* 4 หัวข้อ → 2×2 บนจอกว้าง ไม่มีใบเดี่ยวค้างแถว */
+  .interests { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
   .item { margin: 0; border-top: 4px solid var(--mint); }
   .item h2 { font-size: 1.1rem; margin: 0 0 0.4rem; }
   .item p { margin: 0; }
