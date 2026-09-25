@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseProfile, paragraphs, listItems } from '../src/lib/profile';
+import { parseProfile, paragraphs, listItems, splitHeadline, splitInterest, parseContacts } from '../src/lib/profile';
 
 const raw = [
   '# PROFILE',
@@ -62,5 +62,41 @@ describe('listItems', () => {
       'peers',
       'plain line',
     ]);
+  });
+});
+
+describe('splitHeadline', () => {
+  it('splits H1 and sub line at the first " ที่"', () => {
+    expect(splitHeadline('Full-stack developer ที่วางระบบ ที่ดี')).toEqual({
+      title: 'Full-stack developer',
+      sub: 'ที่วางระบบ ที่ดี',
+    });
+  });
+
+  it('keeps the whole headline as title when there is no split point', () => {
+    expect(splitHeadline('Web developer')).toEqual({ title: 'Web developer', sub: '' });
+  });
+});
+
+describe('splitInterest', () => {
+  it('splits topic and one-line detail on an em dash', () => {
+    expect(splitInterest('DevOps — ใช้ Docker')).toEqual({ topic: 'DevOps', detail: 'ใช้ Docker' });
+  });
+
+  it('keeps topic-only items', () => {
+    expect(splitInterest('Teaching')).toEqual({ topic: 'Teaching', detail: '' });
+  });
+});
+
+describe('parseContacts', () => {
+  it('reads key: value bullets and drops placeholder channels', () => {
+    expect(parseContacts('- email: a@b.test\n- github: https://github.com/x\n- linkedin: —')).toEqual([
+      { label: 'email', value: 'a@b.test' },
+      { label: 'github', value: 'https://github.com/x' },
+    ]);
+  });
+
+  it('is read into the profile from ## Contact', () => {
+    expect(parseProfile(raw).contacts).toEqual([{ label: 'email', value: 'demo@example.com' }]);
   });
 });

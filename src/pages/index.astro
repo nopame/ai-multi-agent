@@ -1,26 +1,36 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadProfile, paragraphs, listItems } from '../lib/profile';
+import { loadProfile, paragraphs, splitHeadline } from '../lib/profile';
 const profile = loadProfile();
-const audience = listItems(profile.audience);
+const headline = splitHeadline(profile.headline);
+const intro = paragraphs(profile.bio)[0];
+// D4/D8: the "ดูโค้ดของเว็บนี้" link is a closed slot until the GitHub audit (L7) passes.
+// Flip to true and set CODE_URL then — no URL is embedded before that.
+const SHOW_CODE_LINK = false;
+const CODE_URL = '';
 ---
-<BaseLayout title={`${profile.name} · Home`} description={profile.headline}>
-  <section class="card">
-    <p style="margin:0;color:var(--accent);font-weight:700">Personal branding site</p>
-    <h1>{profile.name}</h1>
-    <p style="font-size:1.2rem;color:var(--text)">{profile.headline}</p>
-    <p>{paragraphs(profile.bio)[0]}</p>
-    <p><strong>Audience</strong></p>
-    <ul>
-      {audience.map((item) => <li>{item}</li>)}
-    </ul>
+<BaseLayout title={`${profile.name} · ${headline.title}`} description={profile.headline}>
+  <section class="hero">
+    <p class="tag">{profile.name}</p>
+    <h1>{headline.title}</h1>
+    {headline.sub && <p class="sub">{headline.sub}</p>}
+    <p class="actions">
+      <a class="btn-cta" href="/contact">ติดต่อผม</a>
+      {SHOW_CODE_LINK && CODE_URL && <a class="secondary" href={CODE_URL}>ดูโค้ดของเว็บนี้</a>}
+    </p>
   </section>
-  <section class="grid">
-    <a class="card" href="/about"><h2>About</h2><p>เรื่องราวและเส้นทาง</p></a>
-    <a class="card" href="/interests"><h2>Interests</h2><p>หัวข้อที่สนใจ</p></a>
-    <a class="card" href="/contact"><h2>Contact</h2><p>ส่งข้อความถึงฉัน</p></a>
-    <a class="card" href="/guestbook"><h2>Guestbook</h2><p>ฝากคำทักทาย</p></a>
+  <section class="card">
+    <p>{intro}</p>
+    <p><a href="/about">อ่านเพิ่มเติมเกี่ยวกับผม</a></p>
   </section>
 </BaseLayout>
 
+<style>
+  .hero { padding: 1.5rem 0 1rem; }
+  .hero h1 { font-size: clamp(2rem, 8vw, 3.25rem); margin: 0.75rem 0 0.5rem; color: var(--text); }
+  /* D1: sub line ≤ 2 lines at 360px — wrap words, never shrink the font */
+  .sub { font-size: 1.15rem; color: var(--muted); margin: 0; max-width: 34em; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin: 1.5rem 0 0; }
+  .secondary { font-weight: 600; }
+</style>

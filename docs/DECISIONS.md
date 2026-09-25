@@ -57,3 +57,11 @@
 | [#11](https://github.com/nopame/ai-multi-agent/issues/11) | [D8] Audit repo + โปรไฟล์ GitHub 5 ข้อก่อนวางลิงก์ | D8 (+D2) |
 | [#12](https://github.com/nopame/ai-multi-agent/issues/12) | [D11] อีเมล alias ของนามแฝง + แก้ Contact / Privacy ใน PROFILE | D11 (+D6) |
 | [#13](https://github.com/nopame/ai-multi-agent/issues/13) | [D9][D10] Deploy URL 200 บนมือถือ + ตรวจ contrast และ microcopy | D9 · D10 |
+
+## Lab 03 — MCP vs gh
+
+- **ความเร็ว:** MCP ได้เปรียบเมื่อสร้างหลายอันจากเอกสาร เพราะ prompt เดียวอ่าน `DECISIONS.md` แล้วร่าง title/body/label ให้ครบ 8 issues (#6–#13 สร้างเป็นสองชุด ห่างกันราว 7 นาที) · `gh issue create` เร็วกว่าเมื่อทำทีละอันและรู้เนื้อหาอยู่แล้ว เพราะไม่ต้องรอ server เชื่อมต่อหรือรอ model ร่าง แต่ถ้าจะทำหลายอันต้องเขียน body เองทุกอัน
+- **สิทธิ์:** MCP ใช้ fine-grained PAT ที่ `scripts/mcp-github-headers.mjs` อ่านจาก env หรือ `.env` (ห้าม commit) ขอบเขตจึงเท่ากับ scope ของ PAT และยังต้องอนุญาต tool `mcp__github__*` ใน Claude อีกชั้น · `gh` ใช้ token ของ `gh auth login` ที่เก็บใน keyring ซึ่งมักมีสิทธิ์กว้างกว่า (ทุก repo ที่บัญชีเข้าถึงได้) · ทั้งสองทางต้องชี้ repo `nopame/ai-multi-agent` เท่านั้น ห้าม `Onto-IQ/*`
+- **Audit trail:** ฝั่ง GitHub ทั้งสองทางบันทึกผู้สร้างเป็นบัญชี nopame เหมือนกัน จึงแยกจากหน้า issue ไม่ได้ว่ามาจากทางไหน · MCP มีบันทึกเพิ่มในเซสชัน Claude (tool call พร้อม argument) และมีตาราง Issues ↔ Decision ท้ายไฟล์นี้ · `gh` มีแค่ประวัติ shell ของเครื่อง จึงควรใส่ `--repo` และ `--body-file` ให้ตรวจย้อนได้
+- **ข้อผิดพลาดที่เจอ:** config ของ MCP แบบเดิมใส่ `Authorization: Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}` ตรง ๆ ใน `headers` ต้องเปลี่ยนเป็น `headersHelper` (commit 5b12dc8) · ตอนเปิดเซสชัน server `github` ยังเชื่อมต่อไม่เสร็จ tool จึงยังไม่พร้อมใช้ทันที · ฝั่ง `gh` เสี่ยงชี้ repo ผิดถ้าไม่ได้ `gh repo set-default` และ label ที่ใส่ต้องมีอยู่ใน repo แล้ว (repo นี้มี `documentation` และ `enhancement`) · ระวังสร้าง issue ซ้ำ ควรเช็ก `gh issue list` ก่อนเสมอ
+- **เมื่อไหร่ใช้อะไร:** ใช้ **MCP** เมื่อต้องแปลงเอกสาร (DECISIONS/QA/review) เป็นหลาย issue หรือทำต่อเนื่องในบทสนทนา เช่น ค้นหาซ้ำ แล้วสร้าง แล้วลิงก์กลับเข้า docs · ใช้ **`gh`** กับงานเดี่ยวที่รู้เนื้อหาแล้ว ใช้ใน script หรือ CI ใช้เช็กสถานะเร็ว ๆ (`gh issue list`) หรือใช้เป็นทางสำรองเมื่อ MCP ขึ้น 401 หรือยังไม่เชื่อมต่อ

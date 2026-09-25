@@ -1,46 +1,103 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { loadProfile } from '../lib/profile';
+const profile = loadProfile();
+// D5: Guestbook is Later — this route stays reachable by URL only and is NOT linked
+// from nav or cards. Persistence belongs to backend (OpenCode). Until the API is
+// implemented it answers 501 and the page shows a calm "not open yet" note.
 ---
-<BaseLayout title="Guestbook">
+<BaseLayout title={`สมุดเยี่ยม · ${profile.name}`}>
   <section class="card">
-    <h1>Guestbook</h1>
-    <p>ฝากข้อความไว้ได้ทางฟอร์มนี้ — อ่าน/เขียนผ่าน <code>/api/guestbook</code></p>
-    <form id="gb-form">
-      <label for="name">Name</label>
-      <input id="name" name="name" required maxlength="80" />
-      <label for="message">Message</label>
-      <textarea id="message" name="message" rows="3" required maxlength="500"></textarea>
-      <p style="margin-top:1rem"><button type="submit">Sign</button></p>
+    <h1>สมุดเยี่ยม</h1>
+    <p id="gb-closed" hidden>สมุดเยี่ยมยังไม่เปิดให้ฝากข้อความครับ ถ้าต้องการคุยกับผม ไปที่หน้า <a href="/contact">ติดต่อ</a> ได้เลยครับ</p>
+    <form id="gb-form" hidden>
+      <label for="gb-name">ชื่อ</label>
+      <input id="gb-name" name="name" required maxlength="80" autocomplete="name" />
+      <label for="gb-message">ข้อความ</label>
+      <textarea id="gb-message" name="message" rows="3" required maxlength="500"></textarea>
+      <p style="margin-top:1rem"><button class="btn-cta" type="submit">ฝากข้อความ</button></p>
+      <p id="gb-status" role="status" aria-live="polite"></p>
     </form>
-    <div id="entries" class="card" style="margin-top:1.25rem" aria-live="polite">Loading…</div>
+    <ul id="gb-entries" class="entries" aria-live="polite"></ul>
   </section>
 </BaseLayout>
+
+<style>
+  .entries { list-style: none; padding: 0; margin: 1rem 0 0; }
+  .entries li { border-top: 1px solid var(--border); padding: 0.75rem 0; }
+  .entries strong { color: var(--text); }
+  .btn-cta { cursor: pointer; }
+</style>
+
 <script>
-  const entries = document.getElementById('entries');
-  const form = document.getElementById('gb-form');
-  async function load() {
-    const res = await fetch('/api/guestbook');
-    const data = await res.json();
-    if (!res.ok) {
-      entries.textContent = data.error || `HTTP ${res.status}`;
+  type Entry = { name: string; message: string; created_at?: string };
+  const closed = document.getElementById('gb-closed');
+  const form = document.getElementById('gb-form') as HTMLFormElement | null;
+  const status = document.getElementById('gb-status');
+  const list = document.getElementById('gb-entries');
+
+  function showClosed() {
+    form?.setAttribute('hidden', '');
+    closed?.removeAttribute('hidden');
+  }
+
+  // Render with textContent only — user input is never parsed as HTML.
+  function render(entries: Entry[]) {
+    if (!list) return;
+    list.replaceChildren();
+    if (!entries.length) {
+      const li = document.createElement('li');
+      li.textContent = 'ยังไม่มีข้อความครับ';
+      list.append(li);
       return;
     }
-    entries.innerHTML = (data.entries || [])
-      .map((e) => `<p><strong>${e.name}</strong>: ${e.message}<br/><small>${e.created_at}</small></p>`)
-      .join('') || '<p>No entries yet.</p>';
+    for (const e of entries) {
+      const li = document.createElement('li');
+      const name = document.createElement('strong');
+      name.textContent = String(e.name ?? '');
+      const msg = document.createElement('p');
+      msg.textContent = String(e.message ?? '');
+      li.append(name, msg);
+      list.append(li);
+    }
   }
+
+  async function load() {
+    try {
+      const res = await fetch('/api/guestbook');
+      if (!res.ok) return showClosed(); // 501 (not implemented) or any error → calm fallback
+      const data = await res.json();
+      form?.removeAttribute('hidden');
+      render(Array.isArray(data.entries) ? data.entries : []);
+    } catch {
+      showClosed();
+    }
+  }
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const payload = Object.fromEntries(new FormData(form).entries());
-    await fetch('/api/guestbook', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    form.reset();
-    await load();
+    if (!status) return;
+    status.textContent = 'กำลังส่ง…';
+    try {
+      const res = await fetch('/api/guestbook', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
+      });
+      if (res.status === 501) return showClosed();
+      if (!res.ok) {
+        // D9: no server error text — always a next step.
+        status.textContent = 'ส่งไม่สำเร็จ ลองตรวจข้อความแล้วส่งอีกครั้งครับ';
+        return;
+      }
+      status.textContent = 'ขอบคุณที่แวะมาครับ';
+      form.reset();
+      await load();
+    } catch {
+      status.textContent = 'เชื่อมต่อไม่ได้ ลองอีกครั้งครับ';
+    }
   });
+
   load();
 </script>
-

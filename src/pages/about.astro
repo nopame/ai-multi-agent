@@ -1,14 +1,21 @@
 ---
 export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadProfile, paragraphs } from '../lib/profile';
+import { loadProfile, paragraphs, splitInterest } from '../lib/profile';
 const profile = loadProfile();
+// D5: About shows interest topics only, linking to the full Interests page.
+const topics = profile.interests.map((item) => splitInterest(item).topic);
 ---
-<BaseLayout title={`About · ${profile.name}`}>
+<BaseLayout title={`เกี่ยวกับผม · ${profile.name}`}>
   <article class="card">
-    <h1>About</h1>
+    <h1>เกี่ยวกับผม</h1>
     {paragraphs(profile.bio).map((p) => <p>{p}</p>)}
-    <p>เรื่องราวเพิ่มเติม — timeline, skills และลิงก์จะอัปเดตเร็ว ๆ นี้</p>
   </article>
+  <section class="card">
+    <h2>สิ่งที่ผมสนใจ</h2>
+    <ul>
+      {topics.map((t) => <li>{t}</li>)}
+    </ul>
+    <p><a href="/interests">ดูว่าผมทำอะไรกับแต่ละเรื่อง</a></p>
+  </section>
 </BaseLayout>
-
