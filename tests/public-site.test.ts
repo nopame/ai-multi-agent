@@ -44,4 +44,19 @@ describe('public site must not leak course/lab references', () => {
     }
     expect(offenders, 'course references leaked into public markup').toEqual([]);
   });
+
+  // Frontmatter string literals (e.g. default <meta description>) also reach
+  // visitors, so scan them too — only code/HTML comments are exempt.
+  it('frontmatter strings have no course references', () => {
+    const offenders: string[] = [];
+    for (const file of files) {
+      const text = readFileSync(file, 'utf8')
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/(^|[^:])\/\/.*$/gm, '$1');
+      const match = text.match(/\bcourse\b|คอร์ส|\bworkshop\b|เวิร์กช็อป/i);
+      if (match) offenders.push(`${file} -> "${match[0]}"`);
+    }
+    expect(offenders, 'course references leaked into public markup').toEqual([]);
+  });
 });
