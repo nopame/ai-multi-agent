@@ -40,16 +40,29 @@ export function loadProfile(): Profile {
   return parseProfile(readFileSync(path, 'utf8'));
 }
 
+/** Split a section into paragraphs on blank lines. */
+export function paragraphs(text: string): string[] {
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+/** One item per non-empty line, without bullet markers or **bold** / __bold__. */
+export function listItems(text: string): string[] {
+  return text
+    .split('\n')
+    .map((l) => l.replace(/^\s*[-*]\s+/, '').replace(/(\*\*|__)(.+?)\1/g, '$2').trim())
+    .filter(Boolean);
+}
+
 export function parseProfile(source: string): Profile {
   const raw = source.replace(/\r\n/g, '\n');
   const get = (label: string) => {
     const m = raw.match(new RegExp(`^##\\s*${label}\\s*\\n([\\s\\S]*?)(?=^##\\s|(?![\\s\\S]))`, 'm'));
     return (m?.[1] || '').trim();
   };
-  const interests = get('Interests')
-    .split('\n')
-    .map((l) => l.replace(/^[-*]\s*/, '').trim())
-    .filter(Boolean);
+  const interests = listItems(get('Interests'));
   return {
     name: get('Name') || FALLBACK.name,
     headline: get('Headline') || FALLBACK.headline,

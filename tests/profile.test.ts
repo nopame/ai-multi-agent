@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseProfile } from '../src/lib/profile';
+import { parseProfile, paragraphs, listItems } from '../src/lib/profile';
 
 const raw = [
   '# PROFILE',
@@ -46,5 +46,21 @@ describe('parseProfile', () => {
     expect(p.name).toBe('Demo');
     expect(p.headline).toBeTruthy();
     expect(p.interests.length).toBeGreaterThan(0);
+  });
+});
+
+describe('paragraphs', () => {
+  it('splits on blank lines and drops empties', () => {
+    expect(paragraphs('one\n\n two \n\n\n')).toEqual(['one', 'two']);
+  });
+});
+
+describe('listItems', () => {
+  it('strips bullets and markdown emphasis', () => {
+    expect(listItems('- **Main:** recruiters\n* __peers__\n\nplain line')).toEqual([
+      'Main: recruiters',
+      'peers',
+      'plain line',
+    ]);
   });
 });
